@@ -1,4 +1,5 @@
 from abc    import ABC
+from enum   import Enum
 from struct import unpack
 from typing import BinaryIO
 
@@ -124,25 +125,24 @@ def read_constant_packge_info(class_file: BinaryIO):
         'name_index': name_index,
     }
 
-CONSTANT_POOL_TAGS = [None] * 21
-
-CONSTANT_POOL_TAGS[1]  = 'CONSTANT_Utf8',
-CONSTANT_POOL_TAGS[3]  = 'CONSTANT_Integer',
-CONSTANT_POOL_TAGS[4]  = 'CONSTANT_Float',
-CONSTANT_POOL_TAGS[5]  = 'CONSTANT_Long',
-CONSTANT_POOL_TAGS[6]  = 'CONSTANT_Double',
-CONSTANT_POOL_TAGS[7]  = 'CONSTANT_Class',
-CONSTANT_POOL_TAGS[8]  = 'CONSTANT_String',
-CONSTANT_POOL_TAGS[9]  = 'CONSTANT_Fieldref',
-CONSTANT_POOL_TAGS[10] = 'CONSTANT_Methodref',
-CONSTANT_POOL_TAGS[11] = 'CONSTANT_InterfaceMethodref',
-CONSTANT_POOL_TAGS[12] = 'CONSTANT_NameAndType',
-CONSTANT_POOL_TAGS[15] = 'CONSTANT_MethodHandle',
-CONSTANT_POOL_TAGS[16] = 'CONSTANT_MethodType',
-CONSTANT_POOL_TAGS[17] = 'CONSTANT_Dynamic',
-CONSTANT_POOL_TAGS[18] = 'CONSTANT_InvokeDynamic',
-CONSTANT_POOL_TAGS[19] = 'CONSTANT_Module',
-CONSTANT_POOL_TAGS[20] = 'CONSTANT_Package',
+class CONSTANT_POOL_TAGS(Enum):
+    CONSTANT_Utf8               = 1 ,
+    CONSTANT_Integer            = 3 ,
+    CONSTANT_Float              = 4 ,
+    CONSTANT_Long               = 5 ,
+    CONSTANT_Double             = 6 ,
+    CONSTANT_Class              = 7 ,
+    CONSTANT_String             = 8 ,
+    CONSTANT_Fieldref           = 9 ,
+    CONSTANT_Methodref          = 10,
+    CONSTANT_InterfaceMethodref = 11,
+    CONSTANT_NameAndType        = 12,
+    CONSTANT_MethodHandle       = 15,
+    CONSTANT_MethodType         = 16,
+    CONSTANT_Dynamic            = 17,
+    CONSTANT_InvokeDynamic      = 18,
+    CONSTANT_Module             = 19,
+    CONSTANT_Package            = 20,
 
 class ConstantPool:
     def __init__(self, raw_bytes: bytes) -> None:
@@ -159,7 +159,7 @@ class CpInfo(ABC):
         self.raw = raw_bytes
 
     def get_tag(self) -> str:
-        return CONSTANT_POOL_TAGS[int.from_bytes(self.raw[:1], "big")]
+        return CONSTANT_POOL_TAGS[int.from_bytes(self.raw[:1], "big", signed=False)].name
 
 class Utf8Info(CpInfo):
     def __init__(self, raw_bytes: bytes) -> None:

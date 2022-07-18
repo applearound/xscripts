@@ -79,6 +79,7 @@ def read_fields(class_file: BinaryIO) -> Fields:
             class_file.seek(2, 1)
             attribute_length = int.from_bytes(class_file.read(4), byteorder='big', signed=False)
             attributes_length += 6 + attribute_length
+            class_file.seek(attribute_length, 1)
 
         length += 6 + attributes_length
 
@@ -102,6 +103,7 @@ def read_methods(class_file: BinaryIO) -> Methods:
             class_file.seek(2, 1)
             attribute_length = int.from_bytes(class_file.read(4), byteorder='big', signed=False)
             attributes_length += 6 + attribute_length
+            class_file.seek(attribute_length, 1)
 
         length += 6 + attributes_length
 
@@ -119,6 +121,7 @@ def read_attributes(class_file: BinaryIO) -> Attributes:
         class_file.seek(2, 1)
         attribute_length = int.from_bytes(class_file.read(4), byteorder='big', signed=False)
         length += 6 + attribute_length
+        class_file.seek(attribute_length, 1)
 
     class_file.seek(cur)
 
