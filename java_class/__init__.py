@@ -7,3 +7,4 @@ from .interfaces           import Interfaces
 from .fields               import Fields
 from .methods              import Methods
 from .attributes           import Attributes
+from .java_class           import JavaClass

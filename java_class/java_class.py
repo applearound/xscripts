@@ -10,9 +10,18 @@ from .attributes           import Attributes
 
 
 class JavaClass:
-    def __init__(self, magic: Magic, version: Version, constant_pool: ConstantPool,
-                    access_flags: AccessFlags, this_and_super_class: ThisAndSuperClass,
-                    interfaces: Interfaces, fields: Fields, methods: Methods, attribues: Attributes) -> None:
+    def __init__(
+        self,
+        magic: Magic,
+        version: Version,
+        constant_pool: ConstantPool,
+        access_flags: AccessFlags,
+        this_and_super_class: ThisAndSuperClass,
+        interfaces: Interfaces,
+        fields: Fields,
+        methods: Methods,
+        attribues: Attributes
+    ) -> None:
         if not isinstance(magic, Magic)                            : raise Exception()
         if not isinstance(version, Version)                        : raise Exception()
         if not isinstance(constant_pool, ConstantPool)             : raise Exception()
