@@ -1,7 +1,7 @@
 from abc    import ABC
 from enum   import Enum
 from struct import unpack
-from typing import BinaryIO
+from typing import BinaryIO, Iterable
 
 def read_constant_utf8_info(class_file: BinaryIO):
     length = int.from_bytes(class_file.read(2), byteorder='big', signed=False)
@@ -148,18 +148,30 @@ class ConstantPool:
     def __init__(self, raw_bytes: bytes) -> None:
         self.raw = raw_bytes
 
+        self.__constant_pool_length: int = None
+        self.__cp_infos = None
+
     def __len__(self) -> int:
         return self.get_constant_pool_count()
 
     def get_constant_pool_count(self) -> int:
-        return int.from_bytes(self.raw[:2], "big")
+        if self.__constant_pool_length is None:
+            self.__constant_pool_length = int.from_bytes(self.raw[:2], "big", signed=False)
+        return self.__constant_pool_length
+
+    def get_cp_infos(self) -> Iterable[CpInfo]:
+        pass
     
 class CpInfo(ABC):
     def __init__(self, raw_bytes: bytes) -> None:
         self.raw = raw_bytes
 
+        self.__tag = None
+
     def get_tag(self) -> str:
-        return CONSTANT_POOL_TAGS[int.from_bytes(self.raw[:1], "big", signed=False)].name
+        if self.__tag is None:
+            self.__tag = CONSTANT_POOL_TAGS[int.from_bytes(self.raw[:1], "big", signed=False)].name
+        return self.__tag
 
 class Utf8Info(CpInfo):
     def __init__(self, raw_bytes: bytes) -> None:
