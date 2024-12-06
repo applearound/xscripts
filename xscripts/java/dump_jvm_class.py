@@ -2,7 +2,8 @@ from dataclasses import Field
 from pprint import pprint
 from typing import BinaryIO, Dict
 
-from java_class import Magic, Version, ConstantPool, AccessFlags, ThisAndSuperClass, Interfaces, Fields, Methods, Attributes
+from java_class import (AccessFlags, Attributes, ConstantPool, Fields,
+                        Interfaces, Magic, Methods, ThisAndSuperClass, Version)
 
 CONSTANT_POOL_TAGS = [None] * 21
 
@@ -138,6 +139,7 @@ def read_class_file(class_file: BinaryIO) -> Dict[str, Dict]:
     methods              = read_methods(class_file)
     attributes           = read_attributes(class_file)
 
+
     return {
         'magic'               : magic.raw,
         'minor_version'       : version.get_minor_version(),
@@ -153,6 +155,15 @@ def read_class_file(class_file: BinaryIO) -> Dict[str, Dict]:
         'fields'              : fields.raw[:2],
         'methods_count'       : methods.get_methods_count(),
         'methods'             : methods.raw[:2],
+        'attributes_count'    : attributes.get_attributes_count(),
+        'attributes'          : attributes.raw[2:],
+    }
+
+if __name__ == '__main__':
+    file_path = '/Users/yezhou/Desktop/mygithub/mytest/HibernateTest/target/classes/me/yz/hibernate/test/entity/Payment.class'
+    with open(file=file_path, mode='rb') as class_file:
+        class_object = read_class_file(class_file)
+    pprint(class_object)        'methods'             : methods.raw[:2],
         'attributes_count'    : attributes.get_attributes_count(),
         'attributes'          : attributes.raw[2:],
     }
