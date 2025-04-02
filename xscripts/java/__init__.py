@@ -1,3 +1,15 @@
+__all__ = [
+    'Magic',
+    'Version',
+    'AccessFlags',
+    'ThisAndSuperClass',
+    'Interfaces',
+    'Fields',
+    'Methods',
+    "Attributes",
+    'JavaClass'
+]
+
 from .magic                import Magic
 from .version              import Version
 from .constant_pool        import *

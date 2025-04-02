@@ -63,6 +63,3 @@ def dump_png(filepath: str) -> None:
             print(chunck)
             if chunck.get_type() == 'IEND':
                 break
-
-if __name__ == "__main__":
-    dump_png("test.png")

@@ -2,12 +2,20 @@
 name = "xscripts"
 version = "0.1.0"
 description = ""
-authors = ["Yezhou"]
+authors = ["Yezhou <yezhou@example.io>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
+requests = "^2.32.3"
+beautifulsoup4 = "^4.13.3"
 
+
+[tool.poetry.group.dev.dependencies]
+
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.3.5"
 
 [build-system]
 requires = ["poetry-core"]
