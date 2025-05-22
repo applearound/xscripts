@@ -1,6 +1,7 @@
 import os
 import pathlib
 
+
 def clean_m2():
     home_dir = pathlib.Path.home()
     # delete all empty directories under .m2/repository, ask before deleting

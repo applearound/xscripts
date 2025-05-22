@@ -1,22 +1,10 @@
-[tool.poetry]
+[project]
 name = "xscripts"
 version = "0.1.0"
-description = ""
-authors = ["Yezhou <yezhou@example.io>"]
+description = "Add your description here"
 readme = "README.md"
-
-[tool.poetry.dependencies]
-python = "^3.11"
-requests = "^2.32.3"
-beautifulsoup4 = "^4.13.3"
-
-
-[tool.poetry.group.dev.dependencies]
-
-
-[tool.poetry.group.test.dependencies]
-pytest = "^8.3.5"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires-python = ">=3.13"
+dependencies = [
+    "beautifulsoup4>=4.13.4",
+    "requests>=2.32.3",
+]

@@ -10,14 +10,6 @@ import requests
 from bs4 import BeautifulSoup, Tag
 
 
-@dataclass
-class ManPageInfo:
-    section: str
-    name: str
-    description: str
-    url: str
-
-
 LINUX_MAN_PAGES_INFO_SITE_HOST_PREFIX: Final[str] = "https://man7.org/linux/man-pages/"
 LINUX_MAN_PAGES_INFO_SITE: Final[str] = (
     f"{LINUX_MAN_PAGES_INFO_SITE_HOST_PREFIX}dir_all_by_section.html"
@@ -29,6 +21,13 @@ LINK_CONTENT_PATTERN: re.Pattern = re.compile(LINK_CONTENT_PATTERN_STR)
 DESCRIPTION_SUB_PATTERN: re.Pattern = re.compile(DESCRIPTION_SUB_PATTERN_STR)
 
 logger = logging.getLogger(__name__)
+
+@dataclass
+class ManPageInfo:
+    section: str
+    name: str
+    description: str
+    url: str
 
 
 def fetch_manpages_info() -> dict[str, ManPageInfo]:
