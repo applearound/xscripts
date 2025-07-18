@@ -4,7 +4,7 @@ class AccessFlags:
 
     def get_hex(self) -> str:
         return self.raw.hex().upper()
-    
+
     def is_public(self) -> bool:
         return (0x0001 & self.raw) != 0
 
