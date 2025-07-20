@@ -24,8 +24,8 @@ class ClassConstantPoolInfo(ConstantPoolInfo):
 
 @dataclass
 class FieldRefConstantPoolInfo(ConstantPoolInfo):
-    class_index_segment: field(init=False)
-    name_and_type_index_segment: field(init=False)
+    class_index_segment: bytes = field(init=False)
+    name_and_type_index_segment: bytes = field(init=False)
 
     def __post_init__(self):
         super().__post_init__()
@@ -39,8 +39,8 @@ class FieldRefConstantPoolInfo(ConstantPoolInfo):
 
 @dataclass
 class MethodRefConstantPoolInfo(ConstantPoolInfo):
-    class_index_segment: field(init=False)
-    name_and_type_index_segment: field(init=False)
+    class_index_segment: bytes = field(init=False)
+    name_and_type_index_segment: bytes = field(init=False)
 
     def __post_init__(self):
         super().__post_init__()
@@ -54,8 +54,8 @@ class MethodRefConstantPoolInfo(ConstantPoolInfo):
 
 @dataclass
 class InterfaceRefConstantPoolInfo(ConstantPoolInfo):
-    class_index_segment: field(init=False)
-    name_and_type_index_segment: field(init=False)
+    class_index_segment: bytes = field(init=False)
+    name_and_type_index_segment: bytes = field(init=False)
 
     def __post_init__(self):
         super().__post_init__()
@@ -69,7 +69,7 @@ class InterfaceRefConstantPoolInfo(ConstantPoolInfo):
 
 @dataclass
 class StringConstantPoolInfo(ConstantPoolInfo):
-    string_index_segment: field(init=False)
+    string_index_segment: bytes = field(init=False)
 
     def __post_init__(self):
         super().__post_init__()
@@ -81,7 +81,7 @@ class StringConstantPoolInfo(ConstantPoolInfo):
 
 @dataclass
 class IntegerConstantPoolInfo(ConstantPoolInfo):
-    bytes_segment: field(init=False)
+    bytes_segment: bytes = field(init=False)
 
     def __post_init__(self):
         super().__post_init__()
@@ -93,7 +93,7 @@ class IntegerConstantPoolInfo(ConstantPoolInfo):
 
 @dataclass
 class FloatConstantPoolInfo(ConstantPoolInfo):
-    bytes_segment: field(init=False)
+    bytes_segment: bytes = field(init=False)
 
     def __post_init__(self):
         super().__post_init__()
@@ -105,8 +105,8 @@ class FloatConstantPoolInfo(ConstantPoolInfo):
 
 @dataclass
 class LongConstantPoolInfo(ConstantPoolInfo):
-    high_bytes_segment: field(init=False)
-    low_bytes_segment: field(init=False)
+    high_bytes_segment: bytes = field(init=False)
+    low_bytes_segment: bytes = field(init=False)
 
     def __post_init__(self):
         super().__post_init__()
@@ -122,8 +122,8 @@ class LongConstantPoolInfo(ConstantPoolInfo):
 
 @dataclass
 class DoubleConstantPoolInfo(ConstantPoolInfo):
-    high_bytes_segment: field(init=False)
-    low_bytes_segment: field(init=False)
+    high_bytes_segment: bytes = field(init=False)
+    low_bytes_segment: bytes = field(init=False)
 
     def __post_init__(self):
         super().__post_init__()
@@ -136,8 +136,8 @@ class DoubleConstantPoolInfo(ConstantPoolInfo):
 
 @dataclass
 class NameAndTypeConstantPoolInfo(ConstantPoolInfo):
-    name_index_segment: field(init=False)
-    descriptor_index_segment: field(init=False)
+    name_index_segment: bytes = field(init=False)
+    descriptor_index_segment: bytes = field(init=False)
 
     def __post_init__(self):
         super().__post_init__()
@@ -151,8 +151,8 @@ class NameAndTypeConstantPoolInfo(ConstantPoolInfo):
 
 @dataclass
 class Utf8ConstantPoolInfo(ConstantPoolInfo):
-    length_segment: field(init=False)
-    bytes_segment: field(init=False)
+    length_segment: bytes = field(init=False)
+    bytes_segment: bytes = field(init=False)
 
     def __post_init__(self):
         super().__post_init__()
@@ -166,8 +166,8 @@ class Utf8ConstantPoolInfo(ConstantPoolInfo):
 
 @dataclass
 class MethodHandleConstantPoolInfo(ConstantPoolInfo):
-    reference_kind_segment: field(init=False)
-    reference_index_segment: field(init=False)
+    reference_kind_segment: bytes = field(init=False)
+    reference_index_segment: bytes = field(init=False)
 
     def __post_init__(self):
         super().__post_init__()
@@ -181,8 +181,8 @@ class MethodHandleConstantPoolInfo(ConstantPoolInfo):
 
 @dataclass
 class DynamicConstantPoolInfo(ConstantPoolInfo):
-    bootstrap_method_attr_index_segment: field(init=False)
-    name_and_type_index_segment: field(init=False)
+    bootstrap_method_attr_index_segment: bytes = field(init=False)
+    name_and_type_index_segment: bytes = field(init=False)
 
     def __post_init__(self):
         super().__post_init__()
@@ -197,8 +197,8 @@ class DynamicConstantPoolInfo(ConstantPoolInfo):
 
 @dataclass
 class InvokeDynamicConstantPoolInfo(ConstantPoolInfo):
-    bootstrap_method_attr_index_segment: field(init=False)
-    name_and_type_index_segment: field(init=False)
+    bootstrap_method_attr_index_segment: bytes = field(init=False)
+    name_and_type_index_segment: bytes = field(init=False)
 
     def __post_init__(self):
         super().__post_init__()
@@ -213,7 +213,7 @@ class InvokeDynamicConstantPoolInfo(ConstantPoolInfo):
 
 @dataclass
 class ModuleConstantPoolInfo(ConstantPoolInfo):
-    name_index_segment: field(init=False)
+    name_index_segment: bytes = field(init=False)
 
     def __post_init__(self):
         super().__post_init__()
@@ -225,7 +225,7 @@ class ModuleConstantPoolInfo(ConstantPoolInfo):
 
 @dataclass
 class PackageConstantPoolInfo(ConstantPoolInfo):
-    name_index_segment: field(init=False)
+    name_index_segment: bytes = field(init=False)
 
     def __post_init__(self):
         super().__post_init__()
@@ -237,7 +237,7 @@ class PackageConstantPoolInfo(ConstantPoolInfo):
 
 @dataclass
 class MethodTypeConstantPoolInfo(ConstantPoolInfo):
-    descriptor_index_segment: field(init=False)
+    descriptor_index_segment: bytes = field(init=False)
 
     def __post_init__(self):
         super().__post_init__()

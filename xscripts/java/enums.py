@@ -6,9 +6,9 @@ from .constant_pool import *
 
 class ConstantPoolInfoTag(IntEnum):
     CLASS = 7
-    FIELD_REF = 9
-    METHOD_REF = 10
-    INTERFACE_METHOD_REF = 11
+    FIELDREF = 9
+    METHODREF = 10
+    INTERFACE_METHODREF = 11
     STRING = 8
     INTEGER = 3
     FLOAT = 4
@@ -18,6 +18,7 @@ class ConstantPoolInfoTag(IntEnum):
     UTF8 = 1
     METHOD_HANDLE = 15
     METHOD_TYPE = 16
+    DYNAMIC = 17
     INVOKE_DYNAMIC = 18
     MODULE = 19
     PACKAGE = 20
@@ -28,9 +29,9 @@ class ConstantPoolInfoTag(IntEnum):
         The size is determined by the type of constant pool entry:
         - INTEGER and FLOAT: 5 bytes
         - LONG and DOUBLE: 9 bytes
-        - CLASS, STRING, NAME_AND_TYPE, MODULE, PACKAGE: 3 bytes
-        - FIELD_REF, METHOD_REF, INTERFACE_METHOD_REF: 5 bytes
-        - METHOD_HANDLE, METHOD_TYPE, INVOKE_DYNAMIC: 4 bytes
+        - CLASS, METHOD_TYPE, STRING, MODULE, PACKAGE: 3 bytes
+        - FIELDREF, NAME_AND_TYPE, METHODREF, INTERFACE_METHODREF: 5 bytes
+        - METHOD_HANDLE: 4 bytes
         - UTF8: 0 bytes (the size is variable and depends on the length of the UTF-8 string)
         - All other tags: -1 (indicating an unknown or unsupported tag)
 
@@ -42,11 +43,12 @@ class ConstantPoolInfoTag(IntEnum):
             return 5
         elif self in (self.LONG, self.DOUBLE):
             return 9
-        elif self in (self.CLASS, self.STRING, self.NAME_AND_TYPE, self.MODULE, self.PACKAGE):
+        elif self in (self.CLASS, self.METHOD_TYPE, self.STRING, self.MODULE, self.PACKAGE):
             return 3
-        elif self in (self.FIELD_REF, self.METHOD_REF, self.INTERFACE_METHOD_REF):
+        elif self in (self.FIELDREF, self.NAME_AND_TYPE, self.METHODREF, self.INVOKE_DYNAMIC, self.INVOKE_DYNAMIC,
+                      self.INTERFACE_METHODREF):
             return 5
-        elif self in (self.METHOD_HANDLE, self.METHOD_TYPE, self.INVOKE_DYNAMIC):
+        elif self is self.METHOD_HANDLE:
             return 4
         elif self is self.UTF8:
             return 0
