@@ -2,7 +2,7 @@ from io import BufferedReader
 from os import SEEK_CUR, SEEK_SET
 
 from .java_class import JavaClass
-from .enums import ConstantPoolInfoTag
+from .enums import ConstantPoolInfoTags
 
 
 class JavaClassDumpPipeline:
@@ -15,8 +15,9 @@ class JavaClassDumpPipeline:
     def __process_constant_pool_info(count: int, reader: BufferedReader) -> bytes:
         """Process the constant pool info based on the tag number."""
         savepoint = reader.tell()
-        for _ in range(count - 1):
-            tag = ConstantPoolInfoTag(JavaClassDumpPipeline.parse_int(reader.read(1)))
+        index = 0
+        while index < count - 1:
+            tag = ConstantPoolInfoTags(JavaClassDumpPipeline.parse_int(reader.read(1)))
 
             size = tag.get_size()
             if size < 0:
@@ -30,6 +31,11 @@ class JavaClassDumpPipeline:
                 reader.seek(utf8_length, SEEK_CUR)
             else:
                 reader.seek(size - 1, SEEK_CUR)
+
+            if tag is ConstantPoolInfoTags.LONG or tag is ConstantPoolInfoTags.DOUBLE:
+                index += 2
+            else:
+                index += 1
 
         end_cursor = reader.tell()
 
@@ -89,7 +95,7 @@ class JavaClassDumpPipeline:
             this_class_segment = class_file.read(2)
             super_class_segment = class_file.read(2)
             interfaces_count_segment = class_file.read(2)
-            interfaces_segment = class_file.read(2 * self.parse_int(interfaces_count_segment))
+            interfaces_segment = class_file.read(3 * self.parse_int(interfaces_count_segment))
             fields_count_segment = class_file.read(2)
             # Read fields info
             fields_info_segment = self.__process_fields_and_methods_info(self.parse_int(fields_count_segment),

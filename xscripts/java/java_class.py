@@ -1,8 +1,9 @@
 from dataclasses import dataclass
-from io import BytesIO, BufferedReader
+from typing import Iterable
 
-from .enums import ConstantPoolInfoTag
-from .constant_pool import *
+from .enums import AccessFlags
+from .constant_pool import dump_bytes, ConstantPool, ConstantPoolInfo
+from .utils import parse_int
 
 
 @dataclass
@@ -45,79 +46,30 @@ class JavaClass:
     attributes_info_segment: bytes
 
     @staticmethod
-    def parse_int(segment: bytes) -> int:
-        return int.from_bytes(segment, byteorder='big', signed=False)
+    def interfaces_dump_bytes(count: int, interfaces_segment: bytes, constant_pool: ConstantPool) -> tuple[str, ...]:
+        interfaces = []
+        for i in range(count):
+            class_info_segment = interfaces_segment[i * 3:i * 3 + 3]
+            name_index = parse_int(class_info_segment[1:3])
+            utf8_info = constant_pool.get_utf8_constant_pool_info(name_index)
+            interfaces.append(utf8_info.string)
 
-    @staticmethod
-    def __resolve_constant_pool(constant_pool_segment: bytes) -> list[ConstantPoolInfo]:
-        """Resolve the constant pool segment into a list of constant pool entries."""
-        constant_pool = []
-
-        with BytesIO(constant_pool_segment) as segment_io:
-            processing = True
-
-            while processing:
-                tag_segment = segment_io.read(1)
-
-                if not tag_segment:
-                    processing = False
-                    continue
-
-                tag = ConstantPoolInfoTag(JavaClass.parse_int(tag_segment))
-
-                if tag is ConstantPoolInfoTag.UTF8:
-                    # For UTF8, we need to read the length first
-                    utf8_length_segment = segment_io.read(2)
-                    utf8_length = JavaClass.parse_int(utf8_length_segment)
-                    info_segment = utf8_length_segment + segment_io.read(utf8_length)
-
-                    constant_pool.append(Utf8ConstantPoolInfo(tag_segment, info_segment))
-                else:
-                    info_segment = segment_io.read(tag.get_size() - 1)
-
-                    if tag is ConstantPoolInfoTag.CLASS:
-                        constant_pool.append(ClassConstantPoolInfo(tag_segment, info_segment))
-                    elif tag is ConstantPoolInfoTag.FIELDREF:
-                        constant_pool.append(FieldRefConstantPoolInfo(tag_segment, info_segment))
-                    elif tag is ConstantPoolInfoTag.METHODREF:
-                        constant_pool.append(MethodRefConstantPoolInfo(tag_segment, info_segment))
-                    elif tag is ConstantPoolInfoTag.INTERFACE_METHODREF:
-                        constant_pool.append(InterfaceRefConstantPoolInfo(tag_segment, info_segment))
-                    elif tag is ConstantPoolInfoTag.STRING:
-                        constant_pool.append(StringConstantPoolInfo(tag_segment, info_segment))
-                    elif tag is ConstantPoolInfoTag.INTEGER:
-                        constant_pool.append(IntegerConstantPoolInfo(tag_segment, info_segment))
-                    elif tag is ConstantPoolInfoTag.FLOAT:
-                        constant_pool.append(FloatConstantPoolInfo(tag_segment, info_segment))
-                    elif tag is ConstantPoolInfoTag.LONG:
-                        constant_pool.append(LongConstantPoolInfo(tag_segment, info_segment))
-                    elif tag is ConstantPoolInfoTag.DOUBLE:
-                        constant_pool.append(DoubleConstantPoolInfo(tag_segment, info_segment))
-                    elif tag is ConstantPoolInfoTag.NAME_AND_TYPE:
-                        constant_pool.append(NameAndTypeConstantPoolInfo(tag_segment, info_segment))
-                    elif tag is ConstantPoolInfoTag.METHOD_HANDLE:
-                        constant_pool.append(MethodHandleConstantPoolInfo(tag_segment, info_segment))
-                    elif tag is ConstantPoolInfoTag.METHOD_TYPE:
-                        constant_pool.append(MethodTypeConstantPoolInfo(tag_segment, info_segment))
-                    elif tag is ConstantPoolInfoTag.DYNAMIC:
-                        constant_pool.append(DynamicConstantPoolInfo(tag_segment, info_segment))
-                    elif tag is ConstantPoolInfoTag.INVOKE_DYNAMIC:
-                        constant_pool.append(InvokeDynamicConstantPoolInfo(tag_segment, info_segment))
-                    elif tag is ConstantPoolInfoTag.MODULE:
-                        constant_pool.append(ModuleConstantPoolInfo(tag_segment, info_segment))
-                    elif tag is ConstantPoolInfoTag.PACKAGE:
-                        constant_pool.append(PackageConstantPoolInfo(tag_segment, info_segment))
-                    else:
-                        raise ValueError(f"Unknown constant pool tag: {tag}")
-
-        return constant_pool
+        return tuple(interfaces)
 
     def __post_init__(self):
         self.magic: str = self.magic_segment.hex().upper()
-        self.minor_version: int = self.parse_int(self.minor_version_segment)
-        self.major_version: int = self.parse_int(self.major_version_segment)
-        self.constant_pool_count: int = self.parse_int(self.constant_pool_count_segment)
-        self.constant_pool: list[ConstantPoolInfo] = self.__resolve_constant_pool(self.constant_pool_segment)
+        self.minor_version: int = parse_int(self.minor_version_segment)
+        self.major_version: int = parse_int(self.major_version_segment)
+        self.constant_pool_count: int = parse_int(self.constant_pool_count_segment)
+        self.constant_pool: ConstantPool = dump_bytes(self.constant_pool_segment)
+        self.access_flags: int = parse_int(self.access_flags_segment)
+        self.this_class: int = parse_int(self.this_class_segment)
+        self.super_class: int = parse_int(self.super_class_segment)
+        self.interfaces_count: int = parse_int(self.interfaces_count_segment)
+        self.interfaces: tuple[str, ...] = JavaClass.interfaces_dump_bytes(self.interfaces_count,
+                                                                           self.interfaces_segment,
+                                                                           self.constant_pool)
+        self.fields_count = parse_int(self.fields_count_segment)
 
     def get_magic(self) -> str:
         """Get the magic number of the Java class."""
@@ -134,3 +86,31 @@ class JavaClass:
     def get_constant_pool_count(self) -> int:
         """Get the count of the constant pool entries."""
         return self.constant_pool_count
+
+    def constant_pool_info(self) -> Iterable[ConstantPoolInfo]:
+        return iter(self.constant_pool)
+
+    def get_access_flags(self) -> tuple[AccessFlags, ...]:
+        """Get the access flags of the Java class."""
+        return AccessFlags.parse_flags(self.access_flags)
+
+    def get_class_name(self) -> str:
+        """Get the name of the class."""
+        class_info = self.constant_pool.get_class_constant_pool_info(self.this_class)
+        utf8_info = self.constant_pool.get_utf8_constant_pool_info(class_info.name_index)
+
+        return utf8_info.string
+
+    def get_super_class_name(self) -> str:
+        """Get the name of the superclass."""
+        super_class_info = self.constant_pool.get_class_constant_pool_info(self.super_class)
+        utf8_info = self.constant_pool.get_utf8_constant_pool_info(super_class_info.name_index)
+
+        return utf8_info.string
+
+    def get_interfaces_count(self) -> int:
+        """Get the count of interfaces implemented by the class."""
+        return self.interfaces_count
+
+    def get_interfaces(self) -> tuple[str, ...]:
+        """Get the names of interfaces implemented by the class."""
