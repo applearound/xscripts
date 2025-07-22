@@ -17,9 +17,9 @@ def test_java_class_dump_pipeline():
     logger.info("Constant pool count: %s", java_clss.get_constant_pool_count())
 
     logger.info("----------- Constant pool info -----------")
-    for constant_pool_info in java_clss.constant_pool_info():
+    for constant_pool_info in java_clss.get_constant_pool():
         logger.info("Constant pool info: %s", constant_pool_info)
-    logger.info("----------- Constant pool info end -----------")
+    logger.info("----------- Constant pool info ends -----------")
 
     logger.info("Access flags: %s", java_clss.get_access_flags())
     logger.info("This class: %s", java_clss.get_class_name())
@@ -29,18 +29,29 @@ def test_java_class_dump_pipeline():
     logger.info("----------- Interfaces info -----------")
     for interface in java_clss.get_interfaces():
         logger.info("Interface: %s", interface)
-    logger.info("----------- Interfaces info end -----------")
+    logger.info("----------- Interfaces info ends -----------")
 
     logger.info("Fields count: %s", java_clss.get_fields_count())
 
     logger.info("----------- Fields info -----------")
     for field in java_clss.get_fields():
         logger.info("Field: %s", field)
-    logger.info("----------- Fields info end -----------")
+    logger.info("----------- Fields info ends -----------")
 
     logger.info("Methods count: %s", java_clss.get_methods_count())
 
     logger.info("----------- Methods info -----------")
     for method in java_clss.get_methods():
         logger.info("Method: %s", method)
-    logger.info("----------- Methods info end -----------")
+        name_info = java_clss.get_constant_pool_info(method.name_index)
+        logger.info("Method Name: %s", name_info.string)
+        descriptor_info = java_clss.get_constant_pool_info(method.descriptor_index)
+        logger.info("Method Descriptor: %s", descriptor_info.string)
+    logger.info("----------- Methods info ends -----------")
+
+    logger.info("Attributes count: %s", java_clss.get_attributes_count())
+
+    logger.info("----------- Attribute info -----------")
+    for attribute in java_clss.get_attributes():
+        logger.info("Attribute: %s", attribute)
+    logger.info("----------- Attribute info ends -----------")

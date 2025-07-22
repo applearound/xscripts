@@ -2,8 +2,7 @@ from io import BufferedReader
 from os import SEEK_CUR, SEEK_SET
 from dataclasses import dataclass
 
-from .enums import ConstantPoolInfoTags
-from .constant_pool import get_size
+from .constant_pool import ConstantPoolFactory, ConstantPoolInfoTags
 from .utils import parse_int
 
 
@@ -36,7 +35,7 @@ class JavaClassDumpPipeline:
         while index < count - 1:
             tag = ConstantPoolInfoTags(parse_int(reader.read(1)))
 
-            size = get_size(tag)
+            size = ConstantPoolFactory.sizeof(tag)
             if size < 0:
                 raise ValueError(f"Invalid constant pool tag size for tag {tag}")
 

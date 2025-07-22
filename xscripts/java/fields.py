@@ -58,9 +58,9 @@ def dump_bytes(count: int, raw_bytes: bytes) -> tuple[Field, ...]:
         full_attributes_length = sum(len(attr.raw) for attr in attributes)
 
         fields.append(
-            Field(raw_bytes[cursor: cursor + full_attributes_length], access_flags, name_index, descriptor_index,
+            Field(raw_bytes[cursor: cursor + 8 + full_attributes_length], access_flags, name_index, descriptor_index,
                   attributes_count, attributes))
 
-        cursor += full_attributes_length
+        cursor += 8 + full_attributes_length
 
     return tuple(fields)

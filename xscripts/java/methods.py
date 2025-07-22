@@ -1,7 +1,8 @@
 from typing import Iterable
 
-from .attributes import Attribute
+from .attributes import Attribute, dump_bytes as dump_attributes_bytes
 from .enums import FieldAccessFlags
+from .utils import parse_int
 
 
 class Method:
@@ -36,3 +37,30 @@ class Method:
     def get_attributes(self) -> tuple[Attribute, ...]:
         """Get the attributes of the field."""
         return self.attributes
+
+    def __repr__(self) -> str:
+        return f"Method(access_flags={self.access_flags}, name_index={self.name_index}, " \
+               f"descriptor_index={self.descriptor_index}, attributes_count={self.attributes_count})"
+
+
+def dump_bytes(count: int, raw_bytes: bytes) -> Iterable[Method]:
+    """Dump bytes into a tuple of Method objects."""
+    methods = []
+    cursor = 0
+    for _ in range(count):
+        access_flags = parse_int(raw_bytes[cursor: cursor + 2])
+        name_index = parse_int(raw_bytes[cursor + 2: cursor + 4])
+        descriptor_index = parse_int(raw_bytes[cursor + 4: cursor + 6])
+        attributes_count = parse_int(raw_bytes[cursor + 6: cursor + 8])
+
+        attributes = dump_attributes_bytes(attributes_count, raw_bytes[cursor + 8:])
+
+        full_attributes_length = sum(len(attr.raw) for attr in attributes)
+
+        methods.append(
+            Method(raw_bytes[cursor:cursor + 8 + full_attributes_length], access_flags, name_index,
+                   descriptor_index, attributes_count, attributes))
+
+        cursor += 8 + full_attributes_length
+
+    return tuple(methods)

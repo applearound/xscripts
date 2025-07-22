@@ -1,0 +1,36 @@
+from enum import StrEnum
+
+
+class AttributesTypes(StrEnum):
+    """ Enum for attribute types in Java class files.
+
+    """
+    CONSTANT_VALUE = "ConstantValue"
+    CODE = "Code"
+    STACK_MAP_TABLE = "StackMapTable"
+    EXCEPTIONS = "Exceptions"
+    INNER_CLASSES = "InnerClasses"
+    SYNTHETIC = "Synthetic"
+    SIGNATURE = "Signature"
+    SOURCE_FILE = "SourceFile"
+    SOURCE_DEBUG_EXTENSION = "SourceDebugExtension"
+    LINE_NUMBER_TABLE = "LineNumberTable"
+    LOCAL_VARIABLE_TABLE = "LocalVariableTable"
+    LOCAL_VARIABLE_TYPE_TABLE = "LocalVariableTypeTable"
+    DEPRECATED = "Deprecated"
+    RUNTIME_VISIBLE_ANNOTATIONS = "RuntimeVisibleAnnotations"
+    RUNTIME_INVISIBLE_ANNOTATIONS = "RuntimeInvisibleAnnotations"
+    RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS = "RuntimeVisibleParameterAnnotations"
+    RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS = "RuntimeInvisibleParameterAnnotations"
+    RUNTIME_VISIBLE_TYPE_ANNOTATIONS = "RuntimeVisibleTypeAnnotations"
+    RUNTIME_INVISIBLE_TYPE_ANNOTATIONS = "RuntimeInvisibleTypeAnnotations"
+    ANNOTATION_DEFAULT = "AnnotationDefault"
+    BOOTSTRAP_METHODS = "BootstrapMethods"
+    METHOD_PARAMETERS = "MethodParameters"
+    MODULE = "Module"
+    MODULE_PACKAGES = "ModulePackages"
+    MODULE_MAIN_CLASS = "ModuleMainClass"
+    NEST_HOST = "NestHost"
+    NEST_MEMBERS = "NestMembers"
+    RECORD = "Record"
+    PERMITTED_SUBCLASSES = "PermittedSubclasses"

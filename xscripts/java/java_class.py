@@ -1,14 +1,17 @@
 from typing import Iterable
 
-from .enums import AccessFlags
-from .constant_pool import dump_bytes as dump_constant_pool_bytes, ConstantPool, ConstantPoolInfo
+from .enums import ClassAccessFlags
+from .constant_pool import ConstantPoolFactory, ConstantPool, ConstantPoolInfo
 from .fields import dump_bytes as dump_fields_bytes, Field
+from .methods import Method, dump_bytes as dump_methods_bytes
+from .attributes import dump_bytes as dump_attributes_bytes, Attribute
 from .utils import parse_int
 from .pipeline import ChunkedJavaClass
 
 
 class JavaClass:
-    """Java class representation.
+    """ Java class representation.
+
     ClassFile {
         u4             magic;
         u2             minor_version;
@@ -36,7 +39,8 @@ class JavaClass:
         self.minor_version: int = parse_int(self.chunked_java_class.minor_version_segment)
         self.major_version: int = parse_int(self.chunked_java_class.major_version_segment)
         self.constant_pool_count: int = parse_int(self.chunked_java_class.constant_pool_count_segment)
-        self.constant_pool: ConstantPool = dump_constant_pool_bytes(self.chunked_java_class.constant_pool_segment)
+        self.constant_pool: ConstantPool = ConstantPoolFactory.make_constant_pool(
+            self.chunked_java_class.constant_pool_segment)
         self.access_flags: int = parse_int(self.chunked_java_class.access_flags_segment)
         self.this_class: int = parse_int(self.chunked_java_class.this_class_segment)
         self.super_class: int = parse_int(self.chunked_java_class.super_class_segment)
@@ -44,10 +48,15 @@ class JavaClass:
         self.interfaces: tuple[str, ...] = JavaClass.interfaces_dump_bytes(self.interfaces_count,
                                                                            self.chunked_java_class.interfaces_segment,
                                                                            self.constant_pool)
-        self.fields_count = parse_int(self.chunked_java_class.fields_count_segment)
-        self.fields = dump_fields_bytes(self.fields_count, self.chunked_java_class.fields_info_segment)
-        self.methods_count = parse_int(self.chunked_java_class.methods_count_segment)
-        self.methods = dump_fields_bytes(self.methods_count, self.chunked_java_class.methods_info_segment)
+        self.fields_count: int = parse_int(self.chunked_java_class.fields_count_segment)
+        self.fields: tuple[Field, ...] = tuple(
+            dump_fields_bytes(self.fields_count, self.chunked_java_class.fields_info_segment))
+        self.methods_count: int = parse_int(self.chunked_java_class.methods_count_segment)
+        self.methods: tuple[Method, ...] = tuple(
+            dump_methods_bytes(self.methods_count, self.chunked_java_class.methods_info_segment))
+        self.attributes_count: int = parse_int(self.chunked_java_class.attributes_count_segment)
+        self.attributes: tuple[Attribute, ...] = tuple(
+            dump_attributes_bytes(self.attributes_count, self.chunked_java_class.attributes_info_segment))
 
     @staticmethod
     def interfaces_dump_bytes(count: int, interfaces_segment: bytes, constant_pool: ConstantPool) -> tuple[str, ...]:
@@ -77,12 +86,12 @@ class JavaClass:
         """Get the count of the constant pool entries."""
         return self.constant_pool_count
 
-    def constant_pool_info(self) -> Iterable[ConstantPoolInfo]:
-        return iter(self.constant_pool)
+    def get_constant_pool(self) -> Iterable[ConstantPoolInfo]:
+        return self.constant_pool
 
-    def get_access_flags(self) -> Iterable[AccessFlags]:
+    def get_access_flags(self) -> Iterable[ClassAccessFlags]:
         """Get the access flags of the Java class."""
-        return AccessFlags.parse_flags(self.access_flags)
+        return ClassAccessFlags.parse_flags(self.access_flags)
 
     def get_class_name(self) -> str:
         """Get the name of the class."""
@@ -118,6 +127,18 @@ class JavaClass:
         """Get the count of methods in the class."""
         return self.methods_count
 
-    def get_methods(self) -> Iterable[Field]:
+    def get_methods(self) -> Iterable[Method]:
         """Get the methods of the class."""
         return self.methods
+
+    def get_attributes_count(self) -> int:
+        """Get the count of attributes in the class."""
+        return self.attributes_count
+
+    def get_attributes(self) -> Iterable[Attribute]:
+        """Get the attributes of the class."""
+        return self.attributes
+
+    def get_constant_pool_info(self, index: int) -> ConstantPoolInfo:
+        """Get a specific constant pool info by index."""
+        return self.constant_pool.get(index)
