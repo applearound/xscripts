@@ -1,15 +1,15 @@
 import logging
 
-from xscripts.java import JavaClassDumpPipeline
+from xscripts.java import JavaClassDumpPipeline, JavaClass
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
 def test_java_class_dump_pipeline():
-    pipeline = JavaClassDumpPipeline(r"tests_resources/GatewayServer.class")
+    pipeline = JavaClassDumpPipeline(r"tests_resources/DefaultPileConfigurationService.class")
 
-    java_clss = pipeline.run()
+    java_clss = JavaClass(pipeline.run())
 
     logger.info("Magic: %s", java_clss.get_magic())
     logger.info("Minor version: %s", java_clss.get_minor_version())
@@ -25,3 +25,22 @@ def test_java_class_dump_pipeline():
     logger.info("This class: %s", java_clss.get_class_name())
     logger.info("Super class: %s", java_clss.get_super_class_name())
     logger.info("Interfaces count: %s", java_clss.get_interfaces_count())
+
+    logger.info("----------- Interfaces info -----------")
+    for interface in java_clss.get_interfaces():
+        logger.info("Interface: %s", interface)
+    logger.info("----------- Interfaces info end -----------")
+
+    logger.info("Fields count: %s", java_clss.get_fields_count())
+
+    logger.info("----------- Fields info -----------")
+    for field in java_clss.get_fields():
+        logger.info("Field: %s", field)
+    logger.info("----------- Fields info end -----------")
+
+    logger.info("Methods count: %s", java_clss.get_methods_count())
+
+    logger.info("----------- Methods info -----------")
+    for method in java_clss.get_methods():
+        logger.info("Method: %s", method)
+    logger.info("----------- Methods info end -----------")

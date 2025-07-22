@@ -1,331 +1,245 @@
-from struct import unpack
-from dataclasses import dataclass, field
 from io import BytesIO
-from typing import Iterable
+from struct import unpack
+from typing import Iterable, Iterator
 
 from .enums import ConstantPoolInfoTags
 from .utils import parse_int
 
 
-@dataclass
 class ConstantPoolInfo:
-    tag_segment: bytes
-    info_segment: bytes
+    def __init__(self, tag_segment: bytes, info_segment: bytes) -> None:
+        self.tag_segment: bytes = tag_segment
+        self.info_segment: bytes = info_segment
 
-    def __post_init__(self) -> None:
-        self.tag: int = int.from_bytes(self.tag_segment, byteorder='big', signed=False)
+        self.tag: int = parse_int(tag_segment)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(tag={self.tag})"
 
 
-@dataclass
 class ClassConstantPoolInfo(ConstantPoolInfo):
-    name_index_segment: bytes = field(init=False)
-
-    def __post_init__(self) -> None:
-        super().__post_init__()
+    def __init__(self, tag_segment: bytes, info_segment: bytes) -> None:
+        super().__init__(tag_segment, info_segment)
 
         self.name_index_segment = self.info_segment
-        self.name_index: int = int.from_bytes(self.name_index_segment, byteorder='big', signed=False)
+        self.name_index: int = parse_int(self.info_segment)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name_index={self.name_index})"
 
 
-@dataclass
 class FieldRefConstantPoolInfo(ConstantPoolInfo):
-    class_index_segment: bytes = field(init=False)
-    name_and_type_index_segment: bytes = field(init=False)
-
-    def __post_init__(self):
-        super().__post_init__()
+    def __init__(self, tag_segment: bytes, info_segment: bytes) -> None:
+        super().__init__(tag_segment, info_segment)
 
         self.class_index_segment = self.info_segment[:2]
         self.name_and_type_index_segment = self.info_segment[2:]
 
-        self.class_index: int = int.from_bytes(self.class_index_segment, byteorder='big', signed=False)
-        self.name_and_type_index: int = int.from_bytes(self.name_and_type_index_segment, byteorder='big', signed=False)
+        self.class_index: int = parse_int(self.class_index_segment)
+        self.name_and_type_index: int = parse_int(self.name_and_type_index_segment)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(class_index={self.class_index}, name_and_type_index={self.name_and_type_index})"
 
 
-@dataclass
 class MethodRefConstantPoolInfo(ConstantPoolInfo):
-    class_index_segment: bytes = field(init=False)
-    name_and_type_index_segment: bytes = field(init=False)
-
-    def __post_init__(self):
-        super().__post_init__()
+    def __init__(self, tag_segment: bytes, info_segment: bytes) -> None:
+        super().__init__(tag_segment, info_segment)
 
         self.class_index_segment = self.info_segment[:2]
         self.name_and_type_index_segment = self.info_segment[2:]
 
-        self.class_index: int = int.from_bytes(self.class_index_segment, byteorder='big', signed=False)
-        self.name_and_type_index: int = int.from_bytes(self.name_and_type_index_segment, byteorder='big', signed=False)
+        self.class_index: int = parse_int(self.class_index_segment)
+        self.name_and_type_index: int = parse_int(self.name_and_type_index_segment)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(class_index={self.class_index}, name_and_type_index={self.name_and_type_index})"
 
 
-@dataclass
 class InterfaceRefConstantPoolInfo(ConstantPoolInfo):
-    class_index_segment: bytes = field(init=False)
-    name_and_type_index_segment: bytes = field(init=False)
-
-    def __post_init__(self):
-        super().__post_init__()
+    def __init__(self, tag_segment: bytes, info_segment: bytes) -> None:
+        super().__init__(tag_segment, info_segment)
 
         self.class_index_segment = self.info_segment[:2]
         self.name_and_type_index_segment = self.info_segment[2:]
 
-        self.class_index: int = int.from_bytes(self.class_index_segment, byteorder='big', signed=False)
-        self.name_and_type_index: int = int.from_bytes(self.name_and_type_index_segment, byteorder='big', signed=False)
+        self.class_index: int = parse_int(self.class_index_segment)
+        self.name_and_type_index: int = parse_int(self.name_and_type_index_segment)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(class_index={self.class_index}, name_and_type_index={self.name_and_type_index})"
 
 
-@dataclass
 class StringConstantPoolInfo(ConstantPoolInfo):
-    string_index_segment: bytes = field(init=False)
-
-    def __post_init__(self):
-        super().__post_init__()
+    def __init__(self, tag_segment: bytes, info_segment: bytes) -> None:
+        super().__init__(tag_segment, info_segment)
 
         self.string_index_segment = self.info_segment
 
-        self.string_index: int = int.from_bytes(self.string_index_segment, byteorder='big', signed=False)
+        self.string_index: int = parse_int(self.string_index_segment)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(string_index={self.string_index})"
 
 
-@dataclass
 class IntegerConstantPoolInfo(ConstantPoolInfo):
-    bytes_segment: bytes = field(init=False)
-
-    def __post_init__(self):
-        super().__post_init__()
+    def __init__(self, tag_segment: bytes, info_segment: bytes) -> None:
+        super().__init__(tag_segment, info_segment)
 
         self.bytes_segment = self.info_segment
 
-        self.value: int = int.from_bytes(self.bytes_segment, byteorder='big', signed=False)
+        self.value: int = parse_int(self.bytes_segment)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(value={self.value})"
 
 
-@dataclass
 class FloatConstantPoolInfo(ConstantPoolInfo):
-    bytes_segment: bytes = field(init=False)
-
-    def __post_init__(self):
-        super().__post_init__()
+    def __init__(self, tag_segment: bytes, info_segment: bytes) -> None:
+        super().__init__(tag_segment, info_segment)
 
         self.bytes_segment = self.info_segment
 
         self.value: float = unpack('>f', self.bytes_segment)[0]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(value={self.value})"
 
 
-@dataclass
 class LongConstantPoolInfo(ConstantPoolInfo):
-    high_bytes_segment: bytes = field(init=False)
-    low_bytes_segment: bytes = field(init=False)
-
-    def __post_init__(self):
-        super().__post_init__()
+    def __init__(self, tag_segment: bytes, info_segment: bytes) -> None:
+        super().__init__(tag_segment, info_segment)
 
         self.high_bytes_segment = self.info_segment[:4]
         self.low_bytes_segment = self.info_segment[4:]
 
         self.value: int = (
-                (int.from_bytes(self.high_bytes_segment, byteorder='big', signed=False) << 32) |
-                int.from_bytes(self.low_bytes_segment, byteorder='big', signed=False)
+                (parse_int(self.high_bytes_segment) << 32) | parse_int(self.low_bytes_segment)
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(value={self.value})"
 
 
-@dataclass
 class DoubleConstantPoolInfo(ConstantPoolInfo):
-    high_bytes_segment: bytes = field(init=False)
-    low_bytes_segment: bytes = field(init=False)
-
-    def __post_init__(self):
-        super().__post_init__()
+    def __init__(self, tag_segment: bytes, info_segment: bytes) -> None:
+        super().__init__(tag_segment, info_segment)
 
         self.high_bytes_segment = self.info_segment[:4]
         self.low_bytes_segment = self.info_segment[4:]
 
         self.value: float = unpack('>d', self.high_bytes_segment + self.low_bytes_segment)[0]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(value={self.value})"
 
 
-@dataclass
 class NameAndTypeConstantPoolInfo(ConstantPoolInfo):
-    name_index_segment: bytes = field(init=False)
-    descriptor_index_segment: bytes = field(init=False)
-
-    def __post_init__(self):
-        super().__post_init__()
+    def __init__(self, tag_segment: bytes, info_segment: bytes) -> None:
+        super().__init__(tag_segment, info_segment)
 
         self.name_index_segment = self.info_segment[:2]
         self.descriptor_index_segment = self.info_segment[2:]
 
-        self.name_index: int = int.from_bytes(self.name_index_segment, byteorder='big', signed=False)
-        self.descriptor_index: int = int.from_bytes(self.descriptor_index_segment, byteorder='big', signed=False)
+        self.name_index: int = parse_int(self.name_index_segment)
+        self.descriptor_index: int = parse_int(self.descriptor_index_segment)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name_index={self.name_index}, descriptor_index={self.descriptor_index})"
 
 
-@dataclass
 class Utf8ConstantPoolInfo(ConstantPoolInfo):
-    length_segment: bytes = field(init=False)
-    bytes_segment: bytes = field(init=False)
-
-    def __post_init__(self):
-        super().__post_init__()
+    def __init__(self, tag_segment: bytes, info_segment: bytes) -> None:
+        super().__init__(tag_segment, info_segment)
 
         self.length_segment = self.info_segment[:2]
         self.bytes_segment = self.info_segment[2:]
 
-        self.length: int = int.from_bytes(self.length_segment, byteorder='big', signed=False)
+        self.length: int = parse_int(self.length_segment)
         self.string: str = self.bytes_segment.decode('UTF-8')
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(length={self.length}, string='{self.string}')"
 
 
-@dataclass
 class MethodHandleConstantPoolInfo(ConstantPoolInfo):
-    reference_kind_segment: bytes = field(init=False)
-    reference_index_segment: bytes = field(init=False)
-
-    def __post_init__(self):
-        super().__post_init__()
+    def __init__(self, tag_segment: bytes, info_segment: bytes) -> None:
+        super().__init__(tag_segment, info_segment)
 
         self.reference_kind_segment = self.info_segment[:1]
         self.reference_index_segment = self.info_segment[1:]
 
-        self.reference_kind: int = int.from_bytes(self.reference_kind_segment, byteorder='big', signed=False)
-        self.reference_index: int = int.from_bytes(self.reference_index_segment, byteorder='big', signed=False)
+        self.reference_kind: int = parse_int(self.reference_kind_segment)
+        self.reference_index: int = parse_int(self.reference_index_segment)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(reference_kind={self.reference_kind}, reference_index={self.reference_index})"
 
 
-@dataclass
 class DynamicConstantPoolInfo(ConstantPoolInfo):
-    bootstrap_method_attr_index_segment: bytes = field(init=False)
-    name_and_type_index_segment: bytes = field(init=False)
-
-    def __post_init__(self):
-        super().__post_init__()
+    def __init__(self, tag_segment: bytes, info_segment: bytes) -> None:
+        super().__init__(tag_segment, info_segment)
 
         self.bootstrap_method_attr_index_segment = self.info_segment[:2]
         self.name_and_type_index_segment = self.info_segment[2:]
 
-        self.bootstrap_method_attr_index: int = int.from_bytes(self.bootstrap_method_attr_index_segment,
-                                                               byteorder='big', signed=False)
-        self.name_and_type_index: int = int.from_bytes(self.name_and_type_index_segment, byteorder='big', signed=False)
+        self.bootstrap_method_attr_index: int = parse_int(self.bootstrap_method_attr_index_segment)
+        self.name_and_type_index: int = parse_int(self.name_and_type_index_segment)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(bootstrap_method_attr_index={self.bootstrap_method_attr_index}, name_and_type_index={self.name_and_type_index})"
 
 
-@dataclass
 class InvokeDynamicConstantPoolInfo(ConstantPoolInfo):
-    bootstrap_method_attr_index_segment: bytes = field(init=False)
-    name_and_type_index_segment: bytes = field(init=False)
-
-    def __post_init__(self):
-        super().__post_init__()
+    def __init__(self, tag_segment: bytes, info_segment: bytes) -> None:
+        super().__init__(tag_segment, info_segment)
 
         self.bootstrap_method_attr_index_segment = self.info_segment[:2]
         self.name_and_type_index_segment = self.info_segment[2:]
 
-        self.bootstrap_method_attr_index: int = int.from_bytes(self.bootstrap_method_attr_index_segment,
-                                                               byteorder='big', signed=False)
-        self.name_and_type_index: int = int.from_bytes(self.name_and_type_index_segment, byteorder='big', signed=False)
+        self.bootstrap_method_attr_index: int = parse_int(self.bootstrap_method_attr_index_segment)
+        self.name_and_type_index: int = parse_int(self.name_and_type_index_segment)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(bootstrap_method_attr_index={self.bootstrap_method_attr_index}, name_and_type_index={self.name_and_type_index})"
 
 
-@dataclass
 class ModuleConstantPoolInfo(ConstantPoolInfo):
-    name_index_segment: bytes = field(init=False)
-
-    def __post_init__(self):
-        super().__post_init__()
+    def __init__(self, tag_segment: bytes, info_segment: bytes) -> None:
+        super().__init__(tag_segment, info_segment)
 
         self.name_index_segment = self.info_segment
 
-        self.name_index: int = int.from_bytes(self.name_index_segment, byteorder='big', signed=False)
+        self.name_index: int = parse_int(self.name_index_segment)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name_index={self.name_index})"
 
 
-@dataclass
 class PackageConstantPoolInfo(ConstantPoolInfo):
-    name_index_segment: bytes = field(init=False)
-
-    def __post_init__(self):
-        super().__post_init__()
+    def __init__(self, tag_segment: bytes, info_segment: bytes) -> None:
+        super().__init__(tag_segment, info_segment)
 
         self.name_index_segment = self.info_segment
+        self.name_index: int = parse_int(self.name_index_segment)
 
-        self.name_index: int = int.from_bytes(self.name_index_segment, byteorder='big', signed=False)
-
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name_index={self.name_index})"
 
 
-@dataclass
 class MethodTypeConstantPoolInfo(ConstantPoolInfo):
-    descriptor_index_segment: bytes = field(init=False)
-
-    def __post_init__(self):
-        super().__post_init__()
+    def __init__(self, tag_segment: bytes, info_segment: bytes) -> None:
+        super().__init__(tag_segment, info_segment)
 
         self.descriptor_index_segment = self.info_segment
 
-        self.descriptor_index: int = int.from_bytes(self.descriptor_index_segment, byteorder='big', signed=False)
+        self.descriptor_index: int = parse_int(self.descriptor_index_segment)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(descriptor_index={self.descriptor_index})"
 
 
 class ConstantPool:
-    """CONSTANT_Class 	7
-        CONSTANT_Fieldref 	9
-        CONSTANT_Methodref 	10
-        CONSTANT_InterfaceMethodref 	11
-        CONSTANT_String 	8
-        CONSTANT_Integer 	3
-        CONSTANT_Float 	4
-        CONSTANT_Long 	5
-        CONSTANT_Double 	6
-        CONSTANT_NameAndType 	12
-        CONSTANT_Utf8 	1
-        CONSTANT_MethodHandle 	15
-        CONSTANT_MethodType 	16
-        CONSTANT_Dynamic 	17
-        CONSTANT_InvokeDynamic 	18
-        CONSTANT_Module 	19
-        CONSTANT_Package 	20
-    """
-
     def __init__(self, pool: Iterable[ConstantPoolInfo]) -> None:
         self.pool: dict[int, ConstantPoolInfo] = dict()
 
@@ -338,7 +252,7 @@ class ConstantPool:
             else:
                 index += 1
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[ConstantPoolInfo]:
         """Iterate over the constant pool entries."""
         return iter(self.pool.values())
 
@@ -470,6 +384,61 @@ class ConstantPool:
         return info
 
 
+easy_dict: dict[ConstantPoolInfoTags, type[ConstantPoolInfo]] = {
+    ConstantPoolInfoTags.CLASS: ClassConstantPoolInfo,
+    ConstantPoolInfoTags.FIELDREF: FieldRefConstantPoolInfo,
+    ConstantPoolInfoTags.METHODREF: MethodRefConstantPoolInfo,
+    ConstantPoolInfoTags.INTERFACE_METHODREF: InterfaceRefConstantPoolInfo,
+    ConstantPoolInfoTags.STRING: StringConstantPoolInfo,
+    ConstantPoolInfoTags.INTEGER: IntegerConstantPoolInfo,
+    ConstantPoolInfoTags.FLOAT: FloatConstantPoolInfo,
+    ConstantPoolInfoTags.LONG: LongConstantPoolInfo,
+    ConstantPoolInfoTags.DOUBLE: DoubleConstantPoolInfo,
+    ConstantPoolInfoTags.NAME_AND_TYPE: NameAndTypeConstantPoolInfo,
+    ConstantPoolInfoTags.UTF8: Utf8ConstantPoolInfo,
+    ConstantPoolInfoTags.METHOD_HANDLE: MethodHandleConstantPoolInfo,
+    ConstantPoolInfoTags.METHOD_TYPE: MethodTypeConstantPoolInfo,
+    ConstantPoolInfoTags.DYNAMIC: DynamicConstantPoolInfo,
+    ConstantPoolInfoTags.INVOKE_DYNAMIC: InvokeDynamicConstantPoolInfo,
+    ConstantPoolInfoTags.MODULE: ModuleConstantPoolInfo,
+    ConstantPoolInfoTags.PACKAGE: PackageConstantPoolInfo,
+}
+
+
+def get_size(tag: ConstantPoolInfoTags) -> int:
+    """ Returns the size of the constant pool entry based on its tag.
+
+    The size is determined by the type of constant pool entry:
+    - INTEGER and FLOAT: 5 bytes
+    - LONG and DOUBLE: 9 bytes
+    - CLASS, METHOD_TYPE, STRING, MODULE, PACKAGE: 3 bytes
+    - FIELDREF, NAME_AND_TYPE, METHODREF, INTERFACE_METHODREF: 5 bytes
+    - METHOD_HANDLE: 4 bytes
+    - UTF8: 0 bytes (the size is variable and depends on the length of the UTF-8 string)
+    - All other tags: -1 (indicating an unknown or unsupported tag)
+
+    Returns:
+        int: The size of the constant pool entry in bytes.
+    """
+    if tag in (ConstantPoolInfoTags.INTEGER, ConstantPoolInfoTags.FLOAT):
+        return 5
+    elif tag in (ConstantPoolInfoTags.LONG, ConstantPoolInfoTags.DOUBLE):
+        return 9
+    elif tag in (ConstantPoolInfoTags.CLASS, ConstantPoolInfoTags.METHOD_TYPE, ConstantPoolInfoTags.STRING,
+                 ConstantPoolInfoTags.MODULE, ConstantPoolInfoTags.PACKAGE):
+        return 3
+    elif tag in (ConstantPoolInfoTags.FIELDREF, ConstantPoolInfoTags.NAME_AND_TYPE, ConstantPoolInfoTags.METHODREF,
+                 ConstantPoolInfoTags.INVOKE_DYNAMIC, ConstantPoolInfoTags.INVOKE_DYNAMIC,
+                 ConstantPoolInfoTags.INTERFACE_METHODREF):
+        return 5
+    elif tag is ConstantPoolInfoTags.METHOD_HANDLE:
+        return 4
+    elif tag is ConstantPoolInfoTags.UTF8:
+        return 0
+    else:
+        return -1
+
+
 def dump_bytes(constant_pool_segment: bytes) -> ConstantPool:
     """Resolve the constant pool segment into a list of constant pool entries."""
     constant_pool = []
@@ -494,41 +463,8 @@ def dump_bytes(constant_pool_segment: bytes) -> ConstantPool:
 
                 constant_pool.append(Utf8ConstantPoolInfo(tag_segment, info_segment))
             else:
-                info_segment = segment_io.read(tag.get_size() - 1)
+                info_segment = segment_io.read(get_size(tag) - 1)
 
-                if tag is ConstantPoolInfoTags.CLASS:
-                    constant_pool.append(ClassConstantPoolInfo(tag_segment, info_segment))
-                elif tag is ConstantPoolInfoTags.FIELDREF:
-                    constant_pool.append(FieldRefConstantPoolInfo(tag_segment, info_segment))
-                elif tag is ConstantPoolInfoTags.METHODREF:
-                    constant_pool.append(MethodRefConstantPoolInfo(tag_segment, info_segment))
-                elif tag is ConstantPoolInfoTags.INTERFACE_METHODREF:
-                    constant_pool.append(InterfaceRefConstantPoolInfo(tag_segment, info_segment))
-                elif tag is ConstantPoolInfoTags.STRING:
-                    constant_pool.append(StringConstantPoolInfo(tag_segment, info_segment))
-                elif tag is ConstantPoolInfoTags.INTEGER:
-                    constant_pool.append(IntegerConstantPoolInfo(tag_segment, info_segment))
-                elif tag is ConstantPoolInfoTags.FLOAT:
-                    constant_pool.append(FloatConstantPoolInfo(tag_segment, info_segment))
-                elif tag is ConstantPoolInfoTags.LONG:
-                    constant_pool.append(LongConstantPoolInfo(tag_segment, info_segment))
-                elif tag is ConstantPoolInfoTags.DOUBLE:
-                    constant_pool.append(DoubleConstantPoolInfo(tag_segment, info_segment))
-                elif tag is ConstantPoolInfoTags.NAME_AND_TYPE:
-                    constant_pool.append(NameAndTypeConstantPoolInfo(tag_segment, info_segment))
-                elif tag is ConstantPoolInfoTags.METHOD_HANDLE:
-                    constant_pool.append(MethodHandleConstantPoolInfo(tag_segment, info_segment))
-                elif tag is ConstantPoolInfoTags.METHOD_TYPE:
-                    constant_pool.append(MethodTypeConstantPoolInfo(tag_segment, info_segment))
-                elif tag is ConstantPoolInfoTags.DYNAMIC:
-                    constant_pool.append(DynamicConstantPoolInfo(tag_segment, info_segment))
-                elif tag is ConstantPoolInfoTags.INVOKE_DYNAMIC:
-                    constant_pool.append(InvokeDynamicConstantPoolInfo(tag_segment, info_segment))
-                elif tag is ConstantPoolInfoTags.MODULE:
-                    constant_pool.append(ModuleConstantPoolInfo(tag_segment, info_segment))
-                elif tag is ConstantPoolInfoTags.PACKAGE:
-                    constant_pool.append(PackageConstantPoolInfo(tag_segment, info_segment))
-                else:
-                    raise ValueError(f"Unknown constant pool tag: {tag}")
+                constant_pool.append(easy_dict[tag](tag_segment, info_segment))
 
     return ConstantPool(constant_pool)

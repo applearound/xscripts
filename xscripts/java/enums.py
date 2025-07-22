@@ -20,38 +20,6 @@ class ConstantPoolInfoTags(IntEnum):
     MODULE = 19
     PACKAGE = 20
 
-    def get_size(self) -> int:
-        """ Returns the size of the constant pool entry based on its tag.
-
-        The size is determined by the type of constant pool entry:
-        - INTEGER and FLOAT: 5 bytes
-        - LONG and DOUBLE: 9 bytes
-        - CLASS, METHOD_TYPE, STRING, MODULE, PACKAGE: 3 bytes
-        - FIELDREF, NAME_AND_TYPE, METHODREF, INTERFACE_METHODREF: 5 bytes
-        - METHOD_HANDLE: 4 bytes
-        - UTF8: 0 bytes (the size is variable and depends on the length of the UTF-8 string)
-        - All other tags: -1 (indicating an unknown or unsupported tag)
-
-        Returns:
-            int: The size of the constant pool entry in bytes.
-        """
-
-        if self in (self.INTEGER, self.FLOAT):
-            return 5
-        elif self in (self.LONG, self.DOUBLE):
-            return 9
-        elif self in (self.CLASS, self.METHOD_TYPE, self.STRING, self.MODULE, self.PACKAGE):
-            return 3
-        elif self in (self.FIELDREF, self.NAME_AND_TYPE, self.METHODREF, self.INVOKE_DYNAMIC, self.INVOKE_DYNAMIC,
-                      self.INTERFACE_METHODREF):
-            return 5
-        elif self is self.METHOD_HANDLE:
-            return 4
-        elif self is self.UTF8:
-            return 0
-        else:
-            return -1
-
 
 class AccessFlags(IntEnum):
     """ Access flags for classes and interfaces in Java.
@@ -82,6 +50,51 @@ class AccessFlags(IntEnum):
     def parse_flags(value: int) -> tuple['AccessFlags', ...]:
         """Get all access flags that are satisfied by the given value."""
         return tuple(flag for flag in AccessFlags if flag & value != 0)
+
+    @staticmethod
+    def is_public(value: int) -> bool:
+        """Check if the class or interface is public."""
+        return (value & AccessFlags.PUBLIC) != 0
+
+    @staticmethod
+    def is_final(value: int) -> bool:
+        """Check if the class or interface is final."""
+        return (value & AccessFlags.FINAL) != 0
+
+    @staticmethod
+    def is_super(value: int) -> bool:
+        """Check if the class or interface is a super class."""
+        return (value & AccessFlags.SUPER) != 0
+
+    @staticmethod
+    def is_interface(value: int) -> bool:
+        """Check if the class or interface is an interface."""
+        return (value & AccessFlags.INTERFACE) != 0
+
+    @staticmethod
+    def is_abstract(value: int) -> bool:
+        """Check if the class or interface is abstract."""
+        return (value & AccessFlags.ABSTRACT) != 0
+
+    @staticmethod
+    def is_synthetic(value: int) -> bool:
+        """Check if the class or interface is synthetic."""
+        return (value & AccessFlags.SYNTHETIC) != 0
+
+    @staticmethod
+    def is_annotation(value: int) -> bool:
+        """Check if the class or interface is an annotation."""
+        return (value & AccessFlags.ANNOTATION) != 0
+
+    @staticmethod
+    def is_enum(value: int) -> bool:
+        """Check if the class or interface is an enum."""
+        return (value & AccessFlags.ENUM) != 0
+
+    @staticmethod
+    def is_module(value: int) -> bool:
+        """Check if the class or interface is a module."""
+        return (value & AccessFlags.MODULE) != 0
 
 
 class FieldAccessFlags(IntEnum):

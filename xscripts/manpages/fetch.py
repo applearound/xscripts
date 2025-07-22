@@ -49,7 +49,7 @@ def save_manpages_info_to_csv(file_path: str, manpages_info: list[ManPageInfo]) 
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
         writer.writeheader()
-        for _, infos in manpages_info.items():
+        for _, infos in manpages_info:
             for info in infos:
                 writer.writerow(
                     {

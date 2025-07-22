@@ -1,12 +1,12 @@
-from dataclasses import dataclass
 from typing import Iterable
 
 from .enums import AccessFlags
-from .constant_pool import dump_bytes, ConstantPool, ConstantPoolInfo
+from .constant_pool import dump_bytes as dump_constant_pool_bytes, ConstantPool, ConstantPoolInfo
+from .fields import dump_bytes as dump_fields_bytes, Field
 from .utils import parse_int
+from .pipeline import ChunkedJavaClass
 
 
-@dataclass
 class JavaClass:
     """Java class representation.
     ClassFile {
@@ -28,48 +28,38 @@ class JavaClass:
         attribute_info attributes[attributes_count];
     }
     """
-    magic_segment: bytes
-    minor_version_segment: bytes
-    major_version_segment: bytes
-    constant_pool_count_segment: bytes
-    constant_pool_segment: bytes
-    access_flags_segment: bytes
-    this_class_segment: bytes
-    super_class_segment: bytes
-    interfaces_count_segment: bytes
-    interfaces_segment: bytes
-    fields_count_segment: bytes
-    fields_info_segment: bytes
-    methods_count_segment: bytes
-    methods_info_segment: bytes
-    attributes_count_segment: bytes
-    attributes_info_segment: bytes
+
+    def __init__(self, java_class: ChunkedJavaClass) -> None:
+        self.chunked_java_class: ChunkedJavaClass = java_class
+
+        self.magic: str = self.chunked_java_class.magic_segment.hex().upper()
+        self.minor_version: int = parse_int(self.chunked_java_class.minor_version_segment)
+        self.major_version: int = parse_int(self.chunked_java_class.major_version_segment)
+        self.constant_pool_count: int = parse_int(self.chunked_java_class.constant_pool_count_segment)
+        self.constant_pool: ConstantPool = dump_constant_pool_bytes(self.chunked_java_class.constant_pool_segment)
+        self.access_flags: int = parse_int(self.chunked_java_class.access_flags_segment)
+        self.this_class: int = parse_int(self.chunked_java_class.this_class_segment)
+        self.super_class: int = parse_int(self.chunked_java_class.super_class_segment)
+        self.interfaces_count: int = parse_int(self.chunked_java_class.interfaces_count_segment)
+        self.interfaces: tuple[str, ...] = JavaClass.interfaces_dump_bytes(self.interfaces_count,
+                                                                           self.chunked_java_class.interfaces_segment,
+                                                                           self.constant_pool)
+        self.fields_count = parse_int(self.chunked_java_class.fields_count_segment)
+        self.fields = dump_fields_bytes(self.fields_count, self.chunked_java_class.fields_info_segment)
+        self.methods_count = parse_int(self.chunked_java_class.methods_count_segment)
+        self.methods = dump_fields_bytes(self.methods_count, self.chunked_java_class.methods_info_segment)
 
     @staticmethod
     def interfaces_dump_bytes(count: int, interfaces_segment: bytes, constant_pool: ConstantPool) -> tuple[str, ...]:
         interfaces = []
         for i in range(count):
-            class_info_segment = interfaces_segment[i * 3:i * 3 + 3]
-            name_index = parse_int(class_info_segment[1:3])
-            utf8_info = constant_pool.get_utf8_constant_pool_info(name_index)
+            index_segment = interfaces_segment[i * 2:i * 2 + 2]
+            name_index = parse_int(index_segment)
+            class_info = constant_pool.get_class_constant_pool_info(name_index)
+            utf8_info = constant_pool.get_utf8_constant_pool_info(class_info.name_index)
             interfaces.append(utf8_info.string)
 
         return tuple(interfaces)
-
-    def __post_init__(self):
-        self.magic: str = self.magic_segment.hex().upper()
-        self.minor_version: int = parse_int(self.minor_version_segment)
-        self.major_version: int = parse_int(self.major_version_segment)
-        self.constant_pool_count: int = parse_int(self.constant_pool_count_segment)
-        self.constant_pool: ConstantPool = dump_bytes(self.constant_pool_segment)
-        self.access_flags: int = parse_int(self.access_flags_segment)
-        self.this_class: int = parse_int(self.this_class_segment)
-        self.super_class: int = parse_int(self.super_class_segment)
-        self.interfaces_count: int = parse_int(self.interfaces_count_segment)
-        self.interfaces: tuple[str, ...] = JavaClass.interfaces_dump_bytes(self.interfaces_count,
-                                                                           self.interfaces_segment,
-                                                                           self.constant_pool)
-        self.fields_count = parse_int(self.fields_count_segment)
 
     def get_magic(self) -> str:
         """Get the magic number of the Java class."""
@@ -90,7 +80,7 @@ class JavaClass:
     def constant_pool_info(self) -> Iterable[ConstantPoolInfo]:
         return iter(self.constant_pool)
 
-    def get_access_flags(self) -> tuple[AccessFlags, ...]:
+    def get_access_flags(self) -> Iterable[AccessFlags]:
         """Get the access flags of the Java class."""
         return AccessFlags.parse_flags(self.access_flags)
 
@@ -112,5 +102,22 @@ class JavaClass:
         """Get the count of interfaces implemented by the class."""
         return self.interfaces_count
 
-    def get_interfaces(self) -> tuple[str, ...]:
+    def get_interfaces(self) -> Iterable[str]:
         """Get the names of interfaces implemented by the class."""
+        return self.interfaces
+
+    def get_fields_count(self) -> int:
+        """Get the count of fields in the class."""
+        return self.fields_count
+
+    def get_fields(self) -> Iterable[Field]:
+        """Get the fields of the class."""
+        return self.fields
+
+    def get_methods_count(self) -> int:
+        """Get the count of methods in the class."""
+        return self.methods_count
+
+    def get_methods(self) -> Iterable[Field]:
+        """Get the methods of the class."""
+        return self.methods
