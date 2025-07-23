@@ -1,7 +1,7 @@
-from .attribute import Attribute
+from .attributeinfo import AttributeInfo
 
 
-class ModuleAttribute(Attribute):
+class ModuleAttributeInfo(AttributeInfo):
     """ Represents a module attribute in a Java class.
 
     Refer: https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.7.25

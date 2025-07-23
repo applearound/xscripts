@@ -1,4 +1,7 @@
-class ConstantPoolInfo:
+from abc import ABCMeta
+
+
+class ConstantPoolInfo(metaclass=ABCMeta):
     @staticmethod
     def parse_int(segment: bytes) -> int:
         """ Parse an integer from a byte segment.

@@ -1,7 +1,7 @@
-from .attribute import Attribute
+from .attributeinfo import AttributeInfo
 
 
-class AnnotationDefaultAttribute(Attribute):
+class AnnotationDefaultAttributeInfo(AttributeInfo):
     """ Represents an annotation default attribute in a Java class.
 
     Refer: https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.7.22
@@ -16,4 +16,4 @@ class AnnotationDefaultAttribute(Attribute):
         return self.default_value
 
     def __repr__(self) -> str:
-        return f"AnnotationDefaultAttribute(name_index={self.attribute_name_index}, length={self.attribute_length})"
+        return f"AnnotationDefaultAttributeInfo(name_index={self.attribute_name_index}, length={self.attribute_length})"

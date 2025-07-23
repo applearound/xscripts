@@ -1,7 +1,7 @@
-from .attribute import Attribute
+from .attributeinfo import AttributeInfo
 
 
-class MethodParametersAttribute(Attribute):
+class MethodParametersAttributeInfo(AttributeInfo):
     """ Represents a method parameters attribute in a Java class.
 
     Refer: https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.7.24

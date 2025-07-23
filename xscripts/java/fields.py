@@ -1,20 +1,20 @@
 from typing import Iterable
 
+from .attributes import AttributeInfo, dump_bytes as dump_attributes_bytes
 from .enums import FieldAccessFlags
 from .utils import parse_int
-from .attributes import Attribute, dump_bytes as dump_attributes_bytes
 
 
 class Field:
     def __init__(self, raw_bytes: bytes, access_flags: int, name_index: int, descriptor_index: int,
-                 attributes_count: int, attributes: Iterable[Attribute]) -> None:
+                 attributes_count: int, attributes: Iterable[AttributeInfo]) -> None:
         self.raw: bytes = raw_bytes
 
         self.access_flags: int = access_flags
         self.name_index: int = name_index
         self.descriptor_index: int = descriptor_index
         self.attributes_count: int = attributes_count
-        self.attributes: tuple[Attribute, ...] = tuple(attributes)
+        self.attributes: tuple[AttributeInfo, ...] = tuple(attributes)
 
     def get_access_flags(self) -> tuple[FieldAccessFlags, ...]:
         return FieldAccessFlags.parse_flags(self.access_flags)
@@ -34,7 +34,7 @@ class Field:
     def get_attributes_count(self) -> int:
         return self.attributes_count
 
-    def get_attributes(self) -> tuple[Attribute, ...]:
+    def get_attributes(self) -> tuple[AttributeInfo, ...]:
         """Get the attributes of the field."""
         return self.attributes
 
@@ -43,7 +43,7 @@ class Field:
                f"descriptor_index={self.descriptor_index}, attributes_count={self.attributes_count})"
 
 
-def dump_bytes(count: int, raw_bytes: bytes) -> tuple[Field, ...]:
+def dump_bytes(count: int, raw_bytes: bytes, constant_pool) -> tuple[Field, ...]:
     """Dump bytes into a tuple of Field objects."""
     fields = []
     cursor = 0
@@ -53,7 +53,7 @@ def dump_bytes(count: int, raw_bytes: bytes) -> tuple[Field, ...]:
         descriptor_index = parse_int(raw_bytes[cursor + 4: cursor + 6])
         attributes_count = parse_int(raw_bytes[cursor + 6: cursor + 8])
 
-        attributes = dump_attributes_bytes(attributes_count, raw_bytes[cursor + 8:])
+        attributes = dump_attributes_bytes(attributes_count, raw_bytes[cursor + 8:], constant_pool)
 
         full_attributes_length = sum(len(attr.raw) for attr in attributes)
 

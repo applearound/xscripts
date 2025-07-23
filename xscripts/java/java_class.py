@@ -1,12 +1,12 @@
 from typing import Iterable
 
-from .enums import ClassAccessFlags
+from .attributes import dump_bytes as dump_attributes_bytes, AttributeInfo
 from .constant_pool import ConstantPoolFactory, ConstantPool, ConstantPoolInfo
+from .enums import ClassAccessFlags
 from .fields import dump_bytes as dump_fields_bytes, Field
 from .methods import Method, dump_bytes as dump_methods_bytes
-from .attributes import dump_bytes as dump_attributes_bytes, Attribute
-from .utils import parse_int
 from .pipeline import ChunkedJavaClass
+from .utils import parse_int
 
 
 class JavaClass:
@@ -50,13 +50,13 @@ class JavaClass:
                                                                            self.constant_pool)
         self.fields_count: int = parse_int(self.chunked_java_class.fields_count_segment)
         self.fields: tuple[Field, ...] = tuple(
-            dump_fields_bytes(self.fields_count, self.chunked_java_class.fields_info_segment))
+            dump_fields_bytes(self.fields_count, self.chunked_java_class.fields_info_segment, self.constant_pool))
         self.methods_count: int = parse_int(self.chunked_java_class.methods_count_segment)
         self.methods: tuple[Method, ...] = tuple(
-            dump_methods_bytes(self.methods_count, self.chunked_java_class.methods_info_segment))
+            dump_methods_bytes(self.methods_count, self.chunked_java_class.methods_info_segment, self.constant_pool))
         self.attributes_count: int = parse_int(self.chunked_java_class.attributes_count_segment)
-        self.attributes: tuple[Attribute, ...] = tuple(
-            dump_attributes_bytes(self.attributes_count, self.chunked_java_class.attributes_info_segment))
+        self.attributes: tuple[AttributeInfo, ...] = tuple(
+            dump_attributes_bytes(self.attributes_count, self.chunked_java_class.attributes_info_segment, self.constant_pool))
 
     @staticmethod
     def interfaces_dump_bytes(count: int, interfaces_segment: bytes, constant_pool: ConstantPool) -> tuple[str, ...]:
@@ -135,7 +135,7 @@ class JavaClass:
         """Get the count of attributes in the class."""
         return self.attributes_count
 
-    def get_attributes(self) -> Iterable[Attribute]:
+    def get_attributes(self) -> Iterable[AttributeInfo]:
         """Get the attributes of the class."""
         return self.attributes
 

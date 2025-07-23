@@ -1,7 +1,7 @@
-from .attribute import Attribute
+from .attributeinfo import AttributeInfo
 
 
-class RuntimeInvisibleAnnotationsAttribute(Attribute):
+class RuntimeInvisibleAnnotationsAttributeInfo(AttributeInfo):
     """ Represents a runtime invisible annotations attribute in a Java class.
 
     Refer: https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.7.17

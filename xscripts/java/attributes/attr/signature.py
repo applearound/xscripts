@@ -1,7 +1,7 @@
-from .attribute import Attribute
+from .attributeinfo import AttributeInfo
 
 
-class SignatureAttribute(Attribute):
+class SignatureAttributeInfo(AttributeInfo):
     """ Represents a signature attribute in a Java class.
 
     Refer: https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.7.9

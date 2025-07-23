@@ -1,7 +1,7 @@
-from .attribute import Attribute
+from .attributeinfo import AttributeInfo
 
 
-class BootstrapMethodsAttribute(Attribute):
+class BootstrapMethodsAttributeInfo(AttributeInfo):
     """ Represents a bootstrap methods attribute in a Java class.
 
     Refer: https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.7.23
@@ -20,5 +20,5 @@ class BootstrapMethodsAttribute(Attribute):
         return self.bootstrap_methods
 
     def __repr__(self) -> str:
-        return f"BootstrapMethodsAttribute(name_index={self.attribute_name_index}, length={self.attribute_length}, " \
+        return f"BootstrapMethodsAttributeInfo(name_index={self.attribute_name_index}, length={self.attribute_length}, " \
                f"number_of_bootstrap_methods={self.number_of_bootstrap_methods})"

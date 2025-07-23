@@ -1,7 +1,7 @@
-from .attribute import Attribute
+from .attributeinfo import AttributeInfo
 
 
-class NestHostAttribute(Attribute):
+class NestHostAttributeInfo(AttributeInfo):
     """ Represents a nest host attribute in a Java class.
 
     Refer: https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.7.28
