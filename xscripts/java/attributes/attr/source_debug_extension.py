@@ -1,4 +1,4 @@
-from .attributeinfo import AttributeInfo
+from .attribute_info import AttributeInfo
 
 
 class SourceDebugExtensionAttributeInfo(AttributeInfo):
@@ -10,7 +10,7 @@ class SourceDebugExtensionAttributeInfo(AttributeInfo):
     def __init__(self, raw_bytes: bytes, attribute_name_index: int, attribute_length: int) -> None:
         super().__init__(raw_bytes, attribute_name_index, attribute_length)
 
-        self.debug_extension: bytes = self.raw[6:]
+        self.debug_extension: bytes = self.__raw[6:]
 
     def get_debug_extension(self) -> bytes:
         return self.debug_extension

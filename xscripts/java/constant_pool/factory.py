@@ -46,59 +46,54 @@ class ConstantPoolFactory:
             return -1
 
     @staticmethod
-    def make_constant_pool_info(tag_segment: bytes, info_segment: bytes) -> ConstantPoolInfo:
-        """ Create a ConstantPoolInfo instance based on the tag.
+    def make_constant_pool_info(tag_value: int, constant_pool_info_segment: bytes) -> ConstantPoolInfo:
+        """ Create a ConstantPool instance from a list of ConstantPoolInfo.
         """
-        tag = ConstantPoolInfoTags(ConstantPoolInfo.parse_int(tag_segment))
-
-        if tag is ConstantPoolInfoTags.CLASS:
-            return ClassConstantPoolInfo(tag_segment, info_segment)
-        elif tag is ConstantPoolInfoTags.FIELDREF:
-            return FieldrefConstantPoolInfo(tag_segment, info_segment)
-        elif tag is ConstantPoolInfoTags.METHODREF:
-            return MethodrefConstantPoolInfo(tag_segment, info_segment)
-        elif tag is ConstantPoolInfoTags.INTERFACE_METHODREF:
-            return InterfaceMethodrefConstantPoolInfo(tag_segment, info_segment)
-        elif tag is ConstantPoolInfoTags.STRING:
-            return StringConstantPoolInfo(tag_segment, info_segment)
-        elif tag is ConstantPoolInfoTags.INTEGER:
-            return IntegerConstantPoolInfo(tag_segment, info_segment)
-        elif tag is ConstantPoolInfoTags.FLOAT:
-            return FloatConstantPoolInfo(tag_segment, info_segment)
-        elif tag is ConstantPoolInfoTags.LONG:
-            return LongConstantPoolInfo(tag_segment, info_segment)
-        elif tag is ConstantPoolInfoTags.DOUBLE:
-            return DoubleConstantPoolInfo(tag_segment, info_segment)
-        elif tag is ConstantPoolInfoTags.NAME_AND_TYPE:
-            return NameAndTypeConstantPoolInfo(tag_segment, info_segment)
-        elif tag is ConstantPoolInfoTags.METHOD_HANDLE:
-            return MethodHandleConstantPoolInfo(tag_segment, info_segment)
-        elif tag is ConstantPoolInfoTags.METHOD_TYPE:
-            return MethodTypeConstantPoolInfo(tag_segment, info_segment)
-        elif tag is ConstantPoolInfoTags.DYNAMIC:
-            return DynamicConstantPoolInfo(tag_segment, info_segment)
-        elif tag is ConstantPoolInfoTags.INVOKE_DYNAMIC:
-            return InvokeDynamicConstantPoolInfo(tag_segment, info_segment)
-        elif tag is ConstantPoolInfoTags.MODULE:
-            return ModuleConstantPoolInfo(tag_segment, info_segment)
-        elif tag is ConstantPoolInfoTags.PACKAGE:
-            return PackageConstantPoolInfo(tag_segment, info_segment)
+        if tag_value == ConstantPoolInfoTags.CLASS:
+            return ClassConstantPoolInfo(constant_pool_info_segment)
+        elif tag_value == ConstantPoolInfoTags.FIELDREF:
+            return FieldrefConstantPoolInfo(constant_pool_info_segment)
+        elif tag_value == ConstantPoolInfoTags.METHODREF:
+            return MethodrefConstantPoolInfo(constant_pool_info_segment)
+        elif tag_value == ConstantPoolInfoTags.INTERFACE_METHODREF:
+            return InterfaceMethodrefConstantPoolInfo(constant_pool_info_segment)
+        elif tag_value == ConstantPoolInfoTags.STRING:
+            return StringConstantPoolInfo(constant_pool_info_segment)
+        elif tag_value == ConstantPoolInfoTags.INTEGER:
+            return IntegerConstantPoolInfo(constant_pool_info_segment)
+        elif tag_value == ConstantPoolInfoTags.FLOAT:
+            return FloatConstantPoolInfo(constant_pool_info_segment)
+        elif tag_value == ConstantPoolInfoTags.LONG:
+            return LongConstantPoolInfo(constant_pool_info_segment)
+        elif tag_value == ConstantPoolInfoTags.DOUBLE:
+            return DoubleConstantPoolInfo(constant_pool_info_segment)
+        elif tag_value == ConstantPoolInfoTags.NAME_AND_TYPE:
+            return NameAndTypeConstantPoolInfo(constant_pool_info_segment)
+        elif tag_value == ConstantPoolInfoTags.METHOD_HANDLE:
+            return MethodHandleConstantPoolInfo(constant_pool_info_segment)
+        elif tag_value == ConstantPoolInfoTags.METHOD_TYPE:
+            return MethodTypeConstantPoolInfo(constant_pool_info_segment)
+        elif tag_value == ConstantPoolInfoTags.DYNAMIC:
+            return DynamicConstantPoolInfo(constant_pool_info_segment)
+        elif tag_value == ConstantPoolInfoTags.INVOKE_DYNAMIC:
+            return InvokeDynamicConstantPoolInfo(constant_pool_info_segment)
+        elif tag_value == ConstantPoolInfoTags.MODULE:
+            return ModuleConstantPoolInfo(constant_pool_info_segment)
+        elif tag_value == ConstantPoolInfoTags.PACKAGE:
+            return PackageConstantPoolInfo(constant_pool_info_segment)
         else:
-            raise ValueError(f"Unknown size constant pool tag: {tag}")
+            raise ValueError(f"Unsupported constant pool tag: {tag_value}")
 
-    @staticmethod
-    def make_constant_pool(constant_pool_segment: bytes) -> ConstantPool:
+    @classmethod
+    def make_constant_pool(cls, constant_pool_segment: bytes) -> ConstantPool:
         constant_pool = []
 
         with BytesIO(constant_pool_segment) as segment_io:
-            processing = True
-
-            while processing:
+            while True:
                 tag_segment = segment_io.read(1)
 
                 if not tag_segment:
-                    processing = False
-                    continue
+                    break
 
                 tag = ConstantPoolInfoTags(ConstantPoolInfo.parse_int(tag_segment))
 
@@ -106,12 +101,14 @@ class ConstantPoolFactory:
                     # For UTF8, we need to read the length first
                     utf8_length_segment = segment_io.read(2)
                     utf8_length = ConstantPoolInfo.parse_int(utf8_length_segment)
-                    info_segment = utf8_length_segment + segment_io.read(utf8_length)
+                    utf8_segment = segment_io.read(utf8_length)
 
-                    constant_pool.append(Utf8ConstantPoolInfo(tag_segment, info_segment))
+                    pool_info = Utf8ConstantPoolInfo(tag_segment + utf8_length_segment + utf8_segment)
                 else:
-                    info_segment = segment_io.read(ConstantPoolFactory.sizeof(tag) - 1)
+                    info_segment = segment_io.read(cls.sizeof(tag) - 1)
 
-                    constant_pool.append(ConstantPoolFactory.make_constant_pool_info(tag_segment, info_segment))
+                    pool_info = cls.make_constant_pool_info(tag.value, tag_segment + info_segment)
+
+                constant_pool.append(pool_info)
 
         return ConstantPool(constant_pool)

@@ -1,4 +1,8 @@
+from functools import cached_property
+
 from .constant_pool_info import ConstantPoolInfo
+
+from ..enums import ConstantPoolInfoTags
 
 
 class Utf8ConstantPoolInfo(ConstantPoolInfo):
@@ -7,14 +11,30 @@ class Utf8ConstantPoolInfo(ConstantPoolInfo):
     Refer: https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.4.7
     """
 
-    def __init__(self, tag_segment: bytes, info_segment: bytes) -> None:
-        super().__init__(tag_segment, info_segment)
+    @staticmethod
+    def get_tag() -> ConstantPoolInfoTags:
+        return ConstantPoolInfoTags.UTF8
 
-        self.length_segment = self.info_segment[:2]
-        self.bytes_segment = self.info_segment[2:]
+    @classmethod
+    def size_check(cls, raw_bytes: bytes) -> bool:
+        return len(raw_bytes) == 1 + 2 + cls.parse_int(raw_bytes[1:3])
 
-        self.length: int = self.parse_int(self.length_segment)
-        self.string: str = self.bytes_segment.decode('UTF-8')
+    def __init__(self, raw_bytes: bytes) -> None:
+        super().__init__(raw_bytes)
+
+    @cached_property
+    def length(self) -> int:
+        return self.parse_int(self.raw[1:3])
+
+    @cached_property
+    def bytes(self) -> bytes:
+        """ Get the raw bytes of the UTF-8 string, excluding the length prefix.
+        """
+        return self.raw[3:3 + self.length]
+
+    @cached_property
+    def string(self) -> str:
+        return self.bytes.decode('utf-8')
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(length={self.length}, string='{self.string}')"
+        return f"{self.__class__.__name__}(length={self.length}, bytes='{self.bytes.hex().upper()}', string='{self.string}')"

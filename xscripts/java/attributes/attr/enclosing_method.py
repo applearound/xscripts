@@ -1,4 +1,4 @@
-from .attributeinfo import AttributeInfo
+from .attribute_info import AttributeInfo
 
 
 class EnclosingMethodAttributeInfo(AttributeInfo):
@@ -10,8 +10,8 @@ class EnclosingMethodAttributeInfo(AttributeInfo):
     def __init__(self, raw_bytes: bytes, attribute_name_index: int, attribute_length: int) -> None:
         super().__init__(raw_bytes, attribute_name_index, attribute_length)
 
-        self.class_index: int = self.parse_int(self.raw[6:8])
-        self.method_index: int = self.parse_int(self.raw[8:10])
+        self.class_index: int = self.parse_int(self.__raw[6:8])
+        self.method_index: int = self.parse_int(self.__raw[8:10])
 
     def get_class_index(self) -> int:
         return self.class_index

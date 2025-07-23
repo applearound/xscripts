@@ -1,15 +1,38 @@
+from functools import cached_property
+
 from .constant_pool_info import ConstantPoolInfo
+
+from ..enums import ConstantPoolInfoTags
 
 
 class InterfaceMethodrefConstantPoolInfo(ConstantPoolInfo):
-    def __init__(self, tag_segment: bytes, info_segment: bytes) -> None:
-        super().__init__(tag_segment, info_segment)
+    """ Represents an Interface Method Reference in the Java constant pool.
 
-        self.class_index_segment = self.info_segment[:2]
-        self.name_and_type_index_segment = self.info_segment[2:]
+    Refer: https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.2
+    """
 
-        self.class_index: int = self.parse_int(self.class_index_segment)
-        self.name_and_type_index: int = self.parse_int(self.name_and_type_index_segment)
+    @staticmethod
+    def get_tag() -> ConstantPoolInfoTags:
+        return ConstantPoolInfoTags.INTERFACE_METHODREF
+
+    @classmethod
+    def size_check(cls, raw_bytes: bytes) -> bool:
+        return len(raw_bytes) == 5
+
+    def __init__(self, raw_bytes: bytes) -> None:
+        super().__init__(raw_bytes)
+
+    @cached_property
+    def class_index(self) -> int:
+        """ Get the class index of the interface method reference.
+        """
+        return self.parse_int(self.raw[1:3])
+
+    @cached_property
+    def name_and_type_index(self) -> int:
+        """ Get the name and type index of the interface method reference.
+        """
+        return self.parse_int(self.raw[3:5])
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(class_index={self.class_index}, name_and_type_index={self.name_and_type_index})"

@@ -25,7 +25,7 @@ class AttributeFactory:
                 attribute_name_index = AttributeInfo.parse_int(attribute_name_index_segment)
 
                 utf8_info = self.constant_pool.get_utf8_constant_pool_info(attribute_name_index)
-                attribute_name = utf8_info.string
+                attribute_name = utf8_info.__string
 
                 attribute_length_segment = reader.read(4)
                 attribute_length = AttributeInfo.parse_int(attribute_length_segment)

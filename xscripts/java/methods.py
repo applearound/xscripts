@@ -55,7 +55,7 @@ def dump_bytes(count: int, raw_bytes: bytes, constant_pool) -> Iterable[Method]:
 
         attributes = dump_attributes_bytes(attributes_count, raw_bytes[cursor + 8:], constant_pool)
 
-        full_attributes_length = sum(len(attr.raw) for attr in attributes)
+        full_attributes_length = sum(len(attr.__raw) for attr in attributes)
 
         methods.append(
             Method(raw_bytes[cursor:cursor + 8 + full_attributes_length], access_flags, name_index,

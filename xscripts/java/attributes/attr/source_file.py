@@ -1,4 +1,4 @@
-from .attributeinfo import AttributeInfo
+from .attribute_info import AttributeInfo
 
 
 class SourceFileAttributeInfo(AttributeInfo):
@@ -10,7 +10,7 @@ class SourceFileAttributeInfo(AttributeInfo):
     def __init__(self, raw_bytes: bytes, attribute_name_index: int, attribute_length: int) -> None:
         super().__init__(raw_bytes, attribute_name_index, attribute_length)
 
-        self.sourcefile_index: int = self.parse_int(self.raw[6:8])
+        self.sourcefile_index: int = self.parse_int(self.__raw[6:8])
 
     def get_sourcefile_index(self) -> int:
         return self.sourcefile_index

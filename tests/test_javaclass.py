@@ -44,9 +44,9 @@ def test_java_class_dump_pipeline():
     for method in java_clss.get_methods():
         logger.info("Method: %s", method)
         name_info = java_clss.get_constant_pool_info(method.name_index)
-        logger.info("Method Name: %s", name_info.string)
+        logger.info("Method Name: %s", name_info)
         descriptor_info = java_clss.get_constant_pool_info(method.descriptor_index)
-        logger.info("Method Descriptor: %s", descriptor_info.string)
+        logger.info("Method Descriptor: %s", descriptor_info)
     logger.info("----------- Methods info ends -----------")
 
     logger.info("Attributes count: %s", java_clss.get_attributes_count())

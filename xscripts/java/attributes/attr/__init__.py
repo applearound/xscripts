@@ -33,7 +33,7 @@ __all__ = [
 ]
 
 from .annotation_default import AnnotationDefaultAttributeInfo
-from .attributeinfo import AttributeInfo
+from .attribute_info import AttributeInfo
 from .bootstrap_methods import BootstrapMethodsAttributeInfo
 from .code import CodeAttributeInfo
 from .constant_value import ConstantValueAttributeInfo

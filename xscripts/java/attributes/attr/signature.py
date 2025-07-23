@@ -1,4 +1,4 @@
-from .attributeinfo import AttributeInfo
+from .attribute_info import AttributeInfo
 
 
 class SignatureAttributeInfo(AttributeInfo):
@@ -10,7 +10,7 @@ class SignatureAttributeInfo(AttributeInfo):
     def __init__(self, raw_bytes: bytes, attribute_name_index: int, attribute_length: int) -> None:
         super().__init__(raw_bytes, attribute_name_index, attribute_length)
 
-        self.signature_index: int = int.from_bytes(self.raw[6:8], 'big')
+        self.signature_index: int = int.from_bytes(self.__raw[6:8], 'big')
 
     def get_signature_index(self) -> int:
         return self.signature_index

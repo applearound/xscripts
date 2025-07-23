@@ -1,4 +1,4 @@
-from .attributeinfo import AttributeInfo
+from .attribute_info import AttributeInfo
 
 
 class LocalVariableTypeTableAttributeInfo(AttributeInfo):
@@ -10,8 +10,8 @@ class LocalVariableTypeTableAttributeInfo(AttributeInfo):
     def __init__(self, raw_bytes: bytes, attribute_name_index: int, attribute_length: int) -> None:
         super().__init__(raw_bytes, attribute_name_index, attribute_length)
 
-        self.local_variable_type_table_length: int = self.parse_int(self.raw[6:8])
-        self.local_variable_type_table: bytes = self.raw[8:]
+        self.local_variable_type_table_length: int = self.parse_int(self.__raw[6:8])
+        self.local_variable_type_table: bytes = self.__raw[8:]
 
     def get_local_variable_type_table_length(self) -> int:
         return self.local_variable_type_table_length

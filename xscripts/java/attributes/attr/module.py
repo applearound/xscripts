@@ -1,4 +1,4 @@
-from .attributeinfo import AttributeInfo
+from .attribute_info import AttributeInfo
 
 
 class ModuleAttributeInfo(AttributeInfo):
@@ -10,11 +10,11 @@ class ModuleAttributeInfo(AttributeInfo):
     def __init__(self, raw_bytes: bytes, attribute_name_index: int, attribute_length: int) -> None:
         super().__init__(raw_bytes, attribute_name_index, attribute_length)
 
-        self.module_name_index: int = self.parse_int(self.raw[6:8])
-        self.module_flags: int = self.parse_int(self.raw[8:10])
-        self.module_version_index: int = self.parse_int(self.raw[10:12])
-        self.number_of_exports: int = self.parse_int(self.raw[12:14])
-        self.exports: bytes = self.raw[14:]
+        self.module_name_index: int = self.parse_int(self.__raw[6:8])
+        self.module_flags: int = self.parse_int(self.__raw[8:10])
+        self.module_version_index: int = self.parse_int(self.__raw[10:12])
+        self.number_of_exports: int = self.parse_int(self.__raw[12:14])
+        self.exports: bytes = self.__raw[14:]
 
     def get_module_name_index(self) -> int:
         return self.module_name_index

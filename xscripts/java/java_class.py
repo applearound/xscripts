@@ -32,31 +32,36 @@ class JavaClass:
     }
     """
 
+    @staticmethod
+    def parse_int(segment: bytes) -> int:
+        return int.from_bytes(segment, byteorder='big', signed=False)
+
     def __init__(self, java_class: ChunkedJavaClass) -> None:
         self.chunked_java_class: ChunkedJavaClass = java_class
 
         self.magic: str = self.chunked_java_class.magic_segment.hex().upper()
-        self.minor_version: int = parse_int(self.chunked_java_class.minor_version_segment)
-        self.major_version: int = parse_int(self.chunked_java_class.major_version_segment)
-        self.constant_pool_count: int = parse_int(self.chunked_java_class.constant_pool_count_segment)
+        self.minor_version: int = self.parse_int(self.chunked_java_class.minor_version_segment)
+        self.major_version: int = self.parse_int(self.chunked_java_class.major_version_segment)
+        self.constant_pool_count: int = self.parse_int(self.chunked_java_class.constant_pool_count_segment)
         self.constant_pool: ConstantPool = ConstantPoolFactory.make_constant_pool(
             self.chunked_java_class.constant_pool_segment)
-        self.access_flags: int = parse_int(self.chunked_java_class.access_flags_segment)
-        self.this_class: int = parse_int(self.chunked_java_class.this_class_segment)
-        self.super_class: int = parse_int(self.chunked_java_class.super_class_segment)
-        self.interfaces_count: int = parse_int(self.chunked_java_class.interfaces_count_segment)
+        self.access_flags: int = self.parse_int(self.chunked_java_class.access_flags_segment)
+        self.this_class: int = self.parse_int(self.chunked_java_class.this_class_segment)
+        self.super_class: int = self.parse_int(self.chunked_java_class.super_class_segment)
+        self.interfaces_count: int = self.parse_int(self.chunked_java_class.interfaces_count_segment)
         self.interfaces: tuple[str, ...] = JavaClass.interfaces_dump_bytes(self.interfaces_count,
                                                                            self.chunked_java_class.interfaces_segment,
                                                                            self.constant_pool)
-        self.fields_count: int = parse_int(self.chunked_java_class.fields_count_segment)
+        self.fields_count: int = self.parse_int(self.chunked_java_class.fields_count_segment)
         self.fields: tuple[Field, ...] = tuple(
             dump_fields_bytes(self.fields_count, self.chunked_java_class.fields_info_segment, self.constant_pool))
-        self.methods_count: int = parse_int(self.chunked_java_class.methods_count_segment)
+        self.methods_count: int = self.parse_int(self.chunked_java_class.methods_count_segment)
         self.methods: tuple[Method, ...] = tuple(
             dump_methods_bytes(self.methods_count, self.chunked_java_class.methods_info_segment, self.constant_pool))
-        self.attributes_count: int = parse_int(self.chunked_java_class.attributes_count_segment)
+        self.attributes_count: int = self.parse_int(self.chunked_java_class.attributes_count_segment)
         self.attributes: tuple[AttributeInfo, ...] = tuple(
-            dump_attributes_bytes(self.attributes_count, self.chunked_java_class.attributes_info_segment, self.constant_pool))
+            dump_attributes_bytes(self.attributes_count, self.chunked_java_class.attributes_info_segment,
+                                  self.constant_pool))
 
     @staticmethod
     def interfaces_dump_bytes(count: int, interfaces_segment: bytes, constant_pool: ConstantPool) -> tuple[str, ...]:

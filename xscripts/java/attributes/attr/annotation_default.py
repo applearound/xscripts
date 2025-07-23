@@ -1,4 +1,6 @@
-from .attributeinfo import AttributeInfo
+from functools import cached_property
+
+from .attribute_info import AttributeInfo
 
 
 class AnnotationDefaultAttributeInfo(AttributeInfo):
@@ -7,13 +9,12 @@ class AnnotationDefaultAttributeInfo(AttributeInfo):
     Refer: https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.7.22
     """
 
-    def __init__(self, raw_bytes: bytes, attribute_name_index: int, attribute_length: int) -> None:
-        super().__init__(raw_bytes, attribute_name_index, attribute_length)
+    def __init__(self, raw_bytes: bytes) -> None:
+        super().__init__(raw_bytes)
 
-        self.default_value: bytes = self.raw[6:]
-
-    def get_default_value(self) -> bytes:
-        return self.default_value
+    @cached_property
+    def default_value(self) -> bytes:
+        return self.raw[6:6 + self.attribute_length]
 
     def __repr__(self) -> str:
-        return f"AnnotationDefaultAttributeInfo(name_index={self.attribute_name_index}, length={self.attribute_length})"
+        return f"{self.__class__.__name__}(name_index={self.attribute_name_index}, length={self.attribute_length})"

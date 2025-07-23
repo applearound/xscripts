@@ -1,4 +1,4 @@
-from .attributeinfo import AttributeInfo
+from .attribute_info import AttributeInfo
 
 
 class NestHostAttributeInfo(AttributeInfo):
@@ -10,7 +10,7 @@ class NestHostAttributeInfo(AttributeInfo):
     def __init__(self, raw_bytes: bytes, attribute_name_index: int, attribute_length: int) -> None:
         super().__init__(raw_bytes, attribute_name_index, attribute_length)
 
-        self.host_class_index: int = self.parse_int(self.raw[6:8])
+        self.host_class_index: int = self.parse_int(self.__raw[6:8])
 
     def get_host_class_index(self) -> int:
         return self.host_class_index

@@ -1,4 +1,4 @@
-from .attributeinfo import AttributeInfo
+from .attribute_info import AttributeInfo
 
 
 class RuntimeInvisibleParameterAnnotationsAttributeInfo(AttributeInfo):
@@ -10,8 +10,8 @@ class RuntimeInvisibleParameterAnnotationsAttributeInfo(AttributeInfo):
     def __init__(self, raw_bytes: bytes, attribute_name_index: int, attribute_length: int) -> None:
         super().__init__(raw_bytes, attribute_name_index, attribute_length)
 
-        self.number_of_parameters: int = self.parse_int(self.raw[6:8])
-        self.parameter_annotations: bytes = self.raw[8:]
+        self.number_of_parameters: int = self.parse_int(self.__raw[6:8])
+        self.parameter_annotations: bytes = self.__raw[8:]
 
     def get_number_of_parameters(self) -> int:
         return self.number_of_parameters
