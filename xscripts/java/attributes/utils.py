@@ -12,18 +12,17 @@ def dump_bytes(count: int, raw_bytes: bytes, constant_pool: ConstantPool) -> tup
     attributes = []
     cursor = 0
     for _ in range(count):
-        attribute_name_index = AttributeInfo.parse_int(raw_bytes[cursor:cursor + 2])
-        attribute_length = AttributeInfo.parse_int(raw_bytes[cursor + 2:cursor + 6])
+        attribute_name_index_segment = raw_bytes[cursor:cursor + 2]
+        attribute_name_index = AttributeInfo.parse_int(attribute_name_index_segment)
+
+        attribute_length_segment = raw_bytes[cursor + 2:cursor + 6]
+        attribute_length = AttributeInfo.parse_int(attribute_length_segment)
 
         utf8_info = constant_pool.get_utf8_constant_pool_info(attribute_name_index)
         logger.info(
             f"Processing attribute: {utf8_info.string} (index: {attribute_name_index}, length: {attribute_length})")
 
-
         full_length = 6 + attribute_length
-
-        attributes.append(
-            AttributeInfo(raw_bytes[cursor:cursor + full_length], attribute_name_index, attribute_length))
 
         cursor += full_length
 

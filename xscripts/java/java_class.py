@@ -36,6 +36,18 @@ class JavaClass:
     def parse_int(segment: bytes) -> int:
         return int.from_bytes(segment, byteorder='big', signed=False)
 
+    @staticmethod
+    def interfaces_dump_bytes(count: int, interfaces_segment: bytes, constant_pool: ConstantPool) -> tuple[str, ...]:
+        interfaces = []
+        for i in range(count):
+            index_segment = interfaces_segment[i * 2:i * 2 + 2]
+            name_index = parse_int(index_segment)
+            class_info = constant_pool.get_class_constant_pool_info(name_index)
+            utf8_info = constant_pool.get_utf8_constant_pool_info(class_info.name_index)
+            interfaces.append(utf8_info.string)
+
+        return tuple(interfaces)
+
     def __init__(self, java_class: ChunkedJavaClass) -> None:
         self.chunked_java_class: ChunkedJavaClass = java_class
 
@@ -62,18 +74,6 @@ class JavaClass:
         self.attributes: tuple[AttributeInfo, ...] = tuple(
             dump_attributes_bytes(self.attributes_count, self.chunked_java_class.attributes_info_segment,
                                   self.constant_pool))
-
-    @staticmethod
-    def interfaces_dump_bytes(count: int, interfaces_segment: bytes, constant_pool: ConstantPool) -> tuple[str, ...]:
-        interfaces = []
-        for i in range(count):
-            index_segment = interfaces_segment[i * 2:i * 2 + 2]
-            name_index = parse_int(index_segment)
-            class_info = constant_pool.get_class_constant_pool_info(name_index)
-            utf8_info = constant_pool.get_utf8_constant_pool_info(class_info.name_index)
-            interfaces.append(utf8_info.string)
-
-        return tuple(interfaces)
 
     def get_magic(self) -> str:
         """Get the magic number of the Java class."""
