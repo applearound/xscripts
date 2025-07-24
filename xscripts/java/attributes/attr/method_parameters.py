@@ -1,3 +1,6 @@
+from dataclasses import dataclass
+from functools import cached_property
+
 from .attribute_info import AttributeInfo
 
 
@@ -5,20 +8,41 @@ class MethodParametersAttributeInfo(AttributeInfo):
     """ Represents a method parameters attribute in a Java class.
 
     Refer: https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.7.24
+
+    MethodParameters_attribute {
+        u2 attribute_name_index;
+        u4 attribute_length;
+        u1 parameters_count;
+        {   u2 name_index;
+            u2 access_flags;
+        } parameters[parameters_count];
+    }
     """
 
-    def __init__(self, raw_bytes: bytes, attribute_name_index: int, attribute_length: int) -> None:
-        super().__init__(raw_bytes, attribute_name_index, attribute_length)
+    @dataclass(frozen=True)
+    class Parameter:
+        name_index: int
+        access_flags: int
 
-        self.parameters_count: int = self.parse_int(self.__raw[6:8])
-        self.parameters: bytes = self.__raw[8:]
+    def __init__(self, raw_bytes: bytes) -> None:
+        super().__init__(raw_bytes)
 
-    def get_parameters_count(self) -> int:
-        return self.parameters_count
+    @cached_property
+    def parameters_count(self) -> int:
+        return self.parse_int(self.raw[6:7])
 
-    def get_parameters(self) -> bytes:
-        return self.parameters
+    @cached_property
+    def parameters(self) -> tuple[Parameter, ...]:
+        start = 7
+        end = start + self.parameters_count * 4
+        return tuple(
+            self.Parameter(
+                name_index=self.parse_int(self.raw[i:i + 2]),
+                access_flags=self.parse_int(self.raw[i + 2:i + 4])
+            )
+            for i in range(start, end, 4)
+        )
 
     def __repr__(self) -> str:
-        return f"MethodParametersAttribute(name_index={self.attribute_name_index}, length={self.attribute_length}, " \
-               f"parameters_count={self.parameters_count})"
+        return f"{self.__class__.__name__}(name_index={self.attribute_name_index}, length={self.attribute_length}, " \
+               f"parameters_count={self.parameters_count}, parameters={self.parameters})"

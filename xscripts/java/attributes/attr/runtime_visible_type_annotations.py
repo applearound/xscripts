@@ -20,5 +20,5 @@ class RuntimeVisibleTypeAnnotationsAttributeInfo(AttributeInfo):
         return self.annotations
 
     def __repr__(self) -> str:
-        return f"RuntimeVisibleTypeAnnotationsAttribute(name_index={self.attribute_name_index}, length={self.attribute_length}, " \
+        return f"{self.__class__.__name__}(name_index={self.attribute_name_index}, length={self.attribute_length}, " \
                f"annotations_count={self.annotations_count})"

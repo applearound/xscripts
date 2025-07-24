@@ -1,3 +1,5 @@
+from functools import cached_property
+
 from .attribute_info import AttributeInfo
 
 
@@ -13,15 +15,13 @@ class ConstantValueAttributeInfo(AttributeInfo):
     }
     """
 
-    def __init__(self, raw_bytes: bytes, attribute_name_index: int, attribute_length: int,
-                 constantvalue_index: int) -> None:
-        super().__init__(raw_bytes, attribute_name_index, attribute_length)
+    def __init__(self, raw_bytes: bytes) -> None:
+        super().__init__(raw_bytes)
 
-        self.constantvalue_index: int = constantvalue_index
-
-    def get_constant_value_index(self) -> int:
-        return self.constantvalue_index
+    @cached_property
+    def constantvalue_index(self) -> int:
+        return self.parse_int(self.raw[6:8])
 
     def __repr__(self) -> str:
-        return f"ConstantValueAttribute(name_index={self.attribute_name_index}, length={self.attribute_length}, " \
+        return f"{self.__class__.__name__}(name_index={self.attribute_name_index}, length={self.attribute_length}, " \
                f"constant_value_index={self.constantvalue_index})"

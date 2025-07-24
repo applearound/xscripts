@@ -3,7 +3,6 @@ from enum import StrEnum
 
 class AttributesTypes(StrEnum):
     """ Enum for attribute types in Java class files.
-
     """
     CONSTANT_VALUE = "ConstantValue"
     CODE = "Code"

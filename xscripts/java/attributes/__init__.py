@@ -1,11 +1,10 @@
 __all__ = [
-    "dump_bytes",
     "AttributeInfo",
     "ConstantValueAttributeInfo",
     "CodeAttributeInfo",
     "StackMapTableAttributeInfo",
     "ExceptionsAttributeInfo",
-    "InnerClassAttributeInfo",
+    "InnerClassesAttributeInfo",
     "EnclosingMethodAttributeInfo",
     "SyntheticAttributeInfo",
     "SignatureAttributeInfo",
@@ -35,4 +34,4 @@ __all__ = [
 
 from .attr import *
 from .enums import AttributesTypes
-from .utils import dump_bytes
+from .factory import AttributeFactory

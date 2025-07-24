@@ -4,7 +4,7 @@ __all__ = [
     "CodeAttributeInfo",
     "StackMapTableAttributeInfo",
     "ExceptionsAttributeInfo",
-    "InnerClassAttributeInfo",
+    "InnerClassesAttributeInfo",
     "EnclosingMethodAttributeInfo",
     "SyntheticAttributeInfo",
     "SignatureAttributeInfo",
@@ -40,7 +40,7 @@ from .constant_value import ConstantValueAttributeInfo
 from .deprecated import DeprecatedAttributeInfo
 from .enclosing_method import EnclosingMethodAttributeInfo
 from .exceptions import ExceptionsAttributeInfo
-from .inner_class import InnerClassAttributeInfo
+from .inner_classes import InnerClassesAttributeInfo
 from .line_number_table import LineNumberTableAttributeInfo
 from .local_variable_table import LocalVariableTableAttributeInfo
 from .local_variable_type_table import LocalVariableTypeTableAttributeInfo

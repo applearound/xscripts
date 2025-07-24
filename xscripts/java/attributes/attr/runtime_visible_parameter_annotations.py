@@ -20,5 +20,5 @@ class RuntimeVisibleParameterAnnotationsAttributeInfo(AttributeInfo):
         return self.parameter_annotations
 
     def __repr__(self) -> str:
-        return f"RuntimeVisibleParameterAttribute(name_index={self.attribute_name_index}, length={self.attribute_length}, " \
+        return f"{self.__class__.__name__}(name_index={self.attribute_name_index}, length={self.attribute_length}, " \
                f"number_of_parameters={self.number_of_parameters})"
