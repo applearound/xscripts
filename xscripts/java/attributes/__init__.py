@@ -29,7 +29,8 @@ __all__ = [
     "NestHostAttributeInfo",
     "NestMembersAttributeInfo",
     "RecordAttributeInfo",
-    "PermittedSubclassesAttributeInfo"
+    "PermittedSubclassesAttributeInfo",
+    "AttributesTypes"
 ]
 
 from .attr import *

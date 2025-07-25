@@ -5,10 +5,19 @@ class RuntimeVisibleParameterAnnotationsAttributeInfo(AttributeInfo):
     """ Represents a runtime visible parameter annotations attribute in a Java class.
 
     Refer: https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.7.18
+
+    RuntimeVisibleParameterAnnotations_attribute {
+        u2 attribute_name_index;
+        u4 attribute_length;
+        u1 num_parameters;
+        {   u2         num_annotations;
+            annotation annotations[num_annotations];
+        } parameter_annotations[num_parameters];
+    }
     """
 
-    def __init__(self, raw_bytes: bytes, attribute_name_index: int, attribute_length: int) -> None:
-        super().__init__(raw_bytes, attribute_name_index, attribute_length)
+    def __init__(self, raw_bytes: bytes) -> None:
+        super().__init__(raw_bytes)
 
         self.number_of_parameters: int = self.parse_int(self.__raw[6:8])
         self.parameter_annotations: bytes = self.__raw[8:]

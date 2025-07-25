@@ -1,66 +1,92 @@
+from functools import cached_property
 from typing import Iterable
 
-from .attributes import AttributeInfo, dump_bytes as dump_attributes_bytes
-from .enums import FieldAccessFlags
+from .attributes import AttributeInfo
+from .enums import MethodAccessFlags
 from .utils import parse_int
 
 
 class Method:
-    def __init__(self, raw_bytes: bytes, access_flags: int, name_index: int, descriptor_index: int,
-                 attributes_count: int, attributes: Iterable[AttributeInfo]) -> None:
+    """ Represents a Java class method.
+
+    Refer: https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.6
+
+    method_info {
+        u2             access_flags;
+        u2             name_index;
+        u2             descriptor_index;
+        u2             attributes_count;
+        attribute_info attributes[attributes_count];
+    }
+    """
+
+    def __init__(self, raw_bytes: bytes) -> None:
         self.raw = raw_bytes
 
-        self.access_flags: int = access_flags
-        self.name_index: int = name_index
-        self.descriptor_index: int = descriptor_index
-        self.attributes_count: int = attributes_count
-        self.attributes: tuple[AttributeInfo, ...] = tuple(attributes)
+    @cached_property
+    def access_flags(self) -> int:
+        return parse_int(self.raw[0:2])
 
-    def get_access_flags(self) -> tuple[FieldAccessFlags, ...]:
-        return FieldAccessFlags.parse_flags(self.access_flags)
+    @cached_property
+    def name_index(self) -> int:
+        return parse_int(self.raw[2:4])
+
+    @cached_property
+    def descriptor_index(self) -> int:
+        return parse_int(self.raw[4:6])
+
+    @cached_property
+    def attributes_count(self) -> int:
+        return parse_int(self.raw[6:8])
+
+    @cached_property
+    def attributes(self) -> tuple[AttributeInfo, ...]:
+        ...
+
+    def method_access_flags(self) -> tuple[MethodAccessFlags, ...]:
+        return MethodAccessFlags.parse_flags(self.access_flags)
 
     def is_public(self) -> bool:
-        return FieldAccessFlags.is_public(self.access_flags)
+        return MethodAccessFlags.is_public(self.access_flags)
 
     def is_private(self) -> bool:
-        return FieldAccessFlags.is_private(self.access_flags)
+        return MethodAccessFlags.is_private(self.access_flags)
 
-    def get_name_index(self) -> int:
-        return self.name_index
+    def is_protected(self) -> bool:
+        return MethodAccessFlags.is_protected(self.access_flags)
 
-    def get_descriptor_index(self) -> int:
-        return self.descriptor_index
+    def is_static(self) -> bool:
+        return MethodAccessFlags.is_static(self.access_flags)
 
-    def get_attributes_count(self) -> int:
-        return self.attributes_count
+    def is_final(self) -> bool:
+        return MethodAccessFlags.is_final(self.access_flags)
 
-    def get_attributes(self) -> tuple[AttributeInfo, ...]:
-        """Get the attributes of the field."""
-        return self.attributes
+    def is_synchronized(self) -> bool:
+        return MethodAccessFlags.is_synchronized(self.access_flags)
+
+    def is_bridge(self) -> bool:
+        return MethodAccessFlags.is_bridge(self.access_flags)
+
+    def is_varargs(self) -> bool:
+        return MethodAccessFlags.is_varargs(self.access_flags)
+
+    def is_native(self) -> bool:
+        return MethodAccessFlags.is_native(self.access_flags)
+
+    def is_abstract(self) -> bool:
+        return MethodAccessFlags.is_abstract(self.access_flags)
+
+    def is_strict(self) -> bool:
+        return MethodAccessFlags.is_strict(self.access_flags)
+
+    def is_synthetic(self) -> bool:
+        return MethodAccessFlags.is_synthetic(self.access_flags)
 
     def __repr__(self) -> str:
         return f"Method(access_flags={self.access_flags}, name_index={self.name_index}, " \
                f"descriptor_index={self.descriptor_index}, attributes_count={self.attributes_count})"
 
 
-def dump_bytes(count: int, raw_bytes: bytes, constant_pool) -> Iterable[Method]:
+def load_methods(count: int, raw_bytes: bytes, constant_pool) -> Iterable[Method]:
     """Dump bytes into a tuple of Method objects."""
-    methods = []
-    cursor = 0
-    for _ in range(count):
-        access_flags = parse_int(raw_bytes[cursor: cursor + 2])
-        name_index = parse_int(raw_bytes[cursor + 2: cursor + 4])
-        descriptor_index = parse_int(raw_bytes[cursor + 4: cursor + 6])
-        attributes_count = parse_int(raw_bytes[cursor + 6: cursor + 8])
-
-        attributes = dump_attributes_bytes(attributes_count, raw_bytes[cursor + 8:], constant_pool)
-
-        full_attributes_length = sum(len(attr.__raw) for attr in attributes)
-
-        methods.append(
-            Method(raw_bytes[cursor:cursor + 8 + full_attributes_length], access_flags, name_index,
-                   descriptor_index, attributes_count, attributes))
-
-        cursor += 8 + full_attributes_length
-
-    return tuple(methods)
+    ...

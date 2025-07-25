@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from functools import cached_property
 
 from .attribute_info import AttributeInfo
@@ -15,40 +14,7 @@ class RuntimeVisibleAnnotationsAttributeInfo(AttributeInfo):
         u2         num_annotations;
         annotation annotations[num_annotations];
     }
-
-    annotation {
-        u2 type_index;
-        u2 num_element_value_pairs;
-        {   u2            element_name_index;
-            element_value value;
-        } element_value_pairs[num_element_value_pairs];
-    }
-
-    element_value {
-        u1 tag;
-        union {
-            u2 const_value_index;
-
-            {   u2 type_name_index;
-                u2 const_name_index;
-            } enum_const_value;
-
-            u2 class_info_index;
-
-            annotation annotation_value;
-
-            {   u2            num_values;
-                element_value values[num_values];
-            } array_value;
-        } value;
-    }
     """
-
-    @dataclass(frozen=True)
-    class Annotation:
-        type_index: int
-        num_element_value_pairs: int
-        element_value_pairs: tuple[tuple[int, bytes], ...]
 
     def __init__(self, raw_bytes: bytes) -> None:
         super().__init__(raw_bytes)
@@ -57,8 +23,16 @@ class RuntimeVisibleAnnotationsAttributeInfo(AttributeInfo):
     def num_annotations(self) -> int:
         return self.parse_int(self.raw[6:8])
 
-    def annotations(self) -> bytes:
-        return self.annotations
+    @cached_property
+    def annotations(self) -> tuple[Annotation, ...]:
+        start = 8
+        annotations = []
+        for _ in range(self.num_annotations):
+            annotation = self.__parse_annotation(start)
+            annotations.append(annotation)
+            start += 4 + sum(
+                len(pair[1]) if isinstance(pair[1], bytes) else 0 for pair in annotation.element_value_pairs)
+        return tuple(annotations)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name_index={self.attribute_name_index}, length={self.attribute_length})" \

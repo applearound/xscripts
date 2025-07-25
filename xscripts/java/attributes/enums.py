@@ -9,6 +9,7 @@ class AttributesTypes(StrEnum):
     STACK_MAP_TABLE = "StackMapTable"
     EXCEPTIONS = "Exceptions"
     INNER_CLASSES = "InnerClasses"
+    ENCLOSING_METHOD = "EnclosingMethod"
     SYNTHETIC = "Synthetic"
     SIGNATURE = "Signature"
     SOURCE_FILE = "SourceFile"

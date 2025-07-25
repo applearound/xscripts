@@ -5,10 +5,17 @@ class RuntimeInvisibleTypeAnnotationsAttributeInfo(AttributeInfo):
     """ Represents a runtime invisible type annotations attribute in a Java class.
 
     Refer: https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.7.21
+
+    RuntimeInvisibleTypeAnnotations_attribute {
+        u2              attribute_name_index;
+        u4              attribute_length;
+        u2              num_annotations;
+        type_annotation annotations[num_annotations];
+    }
     """
 
-    def __init__(self, raw_bytes: bytes, attribute_name_index: int, attribute_length: int) -> None:
-        super().__init__(raw_bytes, attribute_name_index, attribute_length)
+    def __init__(self, raw_bytes: bytes) -> None:
+        super().__init__(raw_bytes)
 
         self.annotations: bytes = self.__raw[6:]
 

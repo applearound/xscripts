@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Iterable
 
 from .attribute_info import AttributeInfo
 
@@ -41,16 +40,21 @@ class BootstrapMethodsAttributeInfo(AttributeInfo):
         """ Parses the bootstrap methods from the raw bytes.
         """
         start = 8
-        methods = []
-        for _ in range(self.number_of_bootstrap_methods):
-            bootstrap_method_ref = self.parse_int(self.raw[start:start + 2])
-            num_bootstrap_arguments = self.parse_int(self.raw[start + 2:start + 4])
-            bootstrap_arguments = tuple(
-                self.parse_int(self.raw[start + 4 + i:start + 6 + i]) for i in range(0, num_bootstrap_arguments * 2, 2)
-            )
-            methods.append(self.BootstrapMethod(bootstrap_method_ref, num_bootstrap_arguments, bootstrap_arguments))
-            start += 4 + num_bootstrap_arguments * 2
-        return tuple(methods)
+        end = start + self.number_of_bootstrap_methods * 4
+        return tuple(
+            self.__parse_bootstrap_method(start + i)
+            for i in range(0, end - start, 4)
+        )
+
+    def __parse_bootstrap_method(self, start: int) -> BootstrapMethod:
+        """ Helper method to parse a single bootstrap method.
+        """
+        bootstrap_method_ref = self.parse_int(self.raw[start:start + 2])
+        num_bootstrap_arguments = self.parse_int(self.raw[start + 2:start + 4])
+        bootstrap_arguments = tuple(
+            self.parse_int(self.raw[start + 4 + i:start + 6 + i]) for i in range(0, num_bootstrap_arguments * 2, 2)
+        )
+        return self.BootstrapMethod(bootstrap_method_ref, num_bootstrap_arguments, bootstrap_arguments)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name_index={self.attribute_name_index}, length={self.attribute_length}, " \
