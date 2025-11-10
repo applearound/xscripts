@@ -2,10 +2,18 @@ import logging
 from functools import cached_property
 from io import BytesIO
 
-from .attributes import AttributeInfo, AttributesTypes, ConstantValueAttributeInfo, SyntheticAttributeInfo, \
-    DeprecatedAttributeInfo, SignatureAttributeInfo, RuntimeVisibleAnnotationsAttributeInfo, \
-    RuntimeInvisibleAnnotationsAttributeInfo, RuntimeVisibleTypeAnnotationsAttributeInfo, \
-    RuntimeInvisibleTypeAnnotationsAttributeInfo
+from .attributes import (
+    AttributeInfo,
+    AttributesTypes,
+    ConstantValueAttributeInfo,
+    DeprecatedAttributeInfo,
+    RuntimeInvisibleAnnotationsAttributeInfo,
+    RuntimeInvisibleTypeAnnotationsAttributeInfo,
+    RuntimeVisibleAnnotationsAttributeInfo,
+    RuntimeVisibleTypeAnnotationsAttributeInfo,
+    SignatureAttributeInfo,
+    SyntheticAttributeInfo,
+)
 from .constant_pool import ConstantPool
 from .enums import FieldAccessFlags
 from .utils import parse_int
@@ -14,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class Field:
-    """ Represents a Java class field.
+    """Represents a Java class field.
 
     Refer: https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.5
 
@@ -54,19 +62,26 @@ class Field:
         with BytesIO(self.raw[8:]) as reader:
             for _ in range(self.attributes_count):
                 attribute_name_index_segment = reader.read(2)
-                attribute_name_index = AttributeInfo.parse_int(attribute_name_index_segment)
+                attribute_name_index = AttributeInfo.parse_int(
+                    attribute_name_index_segment
+                )
 
-                attribute_name = self.__constant_pool.get_utf8_constant_pool_info(attribute_name_index).string
+                attribute_name = self.__constant_pool.get_utf8_constant_pool_info(
+                    attribute_name_index
+                ).string
 
                 attribute_length_segment = reader.read(4)
                 attribute_length = AttributeInfo.parse_int(attribute_length_segment)
 
                 logger.debug(
-                    f"Processing attribute: %s(index: %s, length: %s)", attribute_name,
-                    attribute_name_index, attribute_length)
+                    f"Processing attribute: {attribute_name}(index: {attribute_name_index}, length: {attribute_length})"
+                )
 
-                raw_attribute_bytes = attribute_name_index_segment + attribute_length_segment + reader.read(
-                    attribute_length)
+                raw_attribute_bytes = (
+                    attribute_name_index_segment
+                    + attribute_length_segment
+                    + reader.read(attribute_length)
+                )
 
                 if attribute_name == AttributesTypes.CONSTANT_VALUE:
                     attribute = ConstantValueAttributeInfo(raw_attribute_bytes)
@@ -77,13 +92,23 @@ class Field:
                 elif attribute_name == AttributesTypes.SIGNATURE:
                     attribute = SignatureAttributeInfo(raw_attribute_bytes)
                 elif attribute_name == AttributesTypes.RUNTIME_VISIBLE_ANNOTATIONS:
-                    attribute = RuntimeVisibleAnnotationsAttributeInfo(raw_attribute_bytes)
+                    attribute = RuntimeVisibleAnnotationsAttributeInfo(
+                        raw_attribute_bytes
+                    )
                 elif attribute_name == AttributesTypes.RUNTIME_INVISIBLE_ANNOTATIONS:
-                    attribute = RuntimeInvisibleAnnotationsAttributeInfo(raw_attribute_bytes)
+                    attribute = RuntimeInvisibleAnnotationsAttributeInfo(
+                        raw_attribute_bytes
+                    )
                 elif attribute_name == AttributesTypes.RUNTIME_VISIBLE_TYPE_ANNOTATIONS:
-                    attribute = RuntimeVisibleTypeAnnotationsAttributeInfo(raw_attribute_bytes)
-                elif attribute_name == AttributesTypes.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS:
-                    attribute = RuntimeInvisibleTypeAnnotationsAttributeInfo(raw_attribute_bytes)
+                    attribute = RuntimeVisibleTypeAnnotationsAttributeInfo(
+                        raw_attribute_bytes
+                    )
+                elif (
+                    attribute_name == AttributesTypes.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS
+                ):
+                    attribute = RuntimeInvisibleTypeAnnotationsAttributeInfo(
+                        raw_attribute_bytes
+                    )
                 else:
                     raise ValueError(f"Unsupported attribute type: {attribute_name}")
 
@@ -126,12 +151,13 @@ class Field:
         return FieldAccessFlags.is_enum(self.access_flags)
 
     def __repr__(self) -> str:
-        return f"Field(access_flags={self.access_flags}, name_index={self.name_index}, " \
-               f"descriptor_index={self.descriptor_index}, attributes_count={self.attributes_count}), " \
-               f"attributes={self.attributes}"
+        return (
+            f"Field(access_flags={self.access_flags}, name_index={self.name_index}, "
+            f"descriptor_index={self.descriptor_index}, attributes_count={self.attributes_count}), "
+            f"attributes={self.attributes}"
+        )
 
 
 def load_fields(count: int, raw_bytes: bytes, constant_pool) -> tuple[Field, ...]:
-    """ Load fields from raw bytes.
-    """
+    """Load fields from raw bytes."""
     ...

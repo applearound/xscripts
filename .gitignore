@@ -50,5 +50,12 @@ ENV/
 env.bak/
 venv.bak/
 
-# Jetbrains IDEs
+# Jetbrains
 .idea/
+
+# Temp files
+*.tmp
+*.temp
+*.log
+tmp/
+temp/

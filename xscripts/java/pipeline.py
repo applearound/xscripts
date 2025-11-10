@@ -1,6 +1,6 @@
+from dataclasses import dataclass
 from io import BufferedReader
 from os import SEEK_CUR, SEEK_SET
-from dataclasses import dataclass
 
 from .constant_pool import ConstantPoolFactory, ConstantPoolInfoTags
 from .utils import parse_int
@@ -104,26 +104,36 @@ class JavaClassDumpPipeline:
             minor_version_segment = class_file.read(2)
             major_version_segment = class_file.read(2)
             constant_pool_count_segment = class_file.read(2)
-            # Read constant pool info
-            constant_pool_info_segment = self.__process_constant_pool_info(parse_int(constant_pool_count_segment),
-                                                                           class_file)
+
+            # Read constant pool
+            constant_pool_info_segment = self.__process_constant_pool_info(
+                parse_int(constant_pool_count_segment), class_file
+            )
             access_flags_segment = class_file.read(2)
             this_class_segment = class_file.read(2)
             super_class_segment = class_file.read(2)
             interfaces_count_segment = class_file.read(2)
-            interfaces_segment = class_file.read(2 * parse_int(interfaces_count_segment))
+            interfaces_segment = class_file.read(
+                2 * parse_int(interfaces_count_segment)
+            )
+
+            # Read fields
             fields_count_segment = class_file.read(2)
-            # Read fields info
-            fields_info_segment = self.__process_fields_and_methods_info(parse_int(fields_count_segment),
-                                                                         class_file)
+            fields_info_segment = self.__process_fields_and_methods_info(
+                parse_int(fields_count_segment), class_file
+            )
+
+            # Read methods
             methods_count_segment = class_file.read(2)
-            # Read methods info
-            methods_info_segment = self.__process_fields_and_methods_info(parse_int(methods_count_segment),
-                                                                          class_file)
+            methods_info_segment = self.__process_fields_and_methods_info(
+                parse_int(methods_count_segment), class_file
+            )
+
+            # Read attributes
             attributes_count_segment = class_file.read(2)
-            # Read attributes info
-            attributes_info_segment = self.__process_attributes_info(parse_int(attributes_count_segment),
-                                                                     class_file)
+            attributes_info_segment = self.__process_attributes_info(
+                parse_int(attributes_count_segment), class_file
+            )
 
             return ChunkedJavaClass(
                 magic_segment,
@@ -141,7 +151,7 @@ class JavaClassDumpPipeline:
                 methods_count_segment,
                 methods_info_segment,
                 attributes_count_segment,
-                attributes_info_segment
+                attributes_info_segment,
             )
 
     def __repr__(self) -> str:
