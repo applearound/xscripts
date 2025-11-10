@@ -2,24 +2,23 @@ import subprocess
 from pathlib import Path
 
 
-def new_csr(config_file: str, pkey_file: str, csr_file: str):
+def new_csr(csr_config_file: str, server_pkey_file: str, csr_file: str):
     """
     使用OpenSSL配置文件和已有私钥生成CSR
 
     Args:
-        config_file: OpenSSL配置文件路径
-        pkey_file: 已存在的私钥文件路径
-        csr_file: 输出的CSR文件路径
-        key_size: 密钥长度参数（此参数已不使用，保留用于兼容性）
+        csr_config_file: 生成CSR文件的OpenSSL配置文件路径
+        server_pkey_file: 服务器私钥文件路径
+        csr_file:         输出的CSR文件路径
     """
-    config_path = Path(config_file)
-    pkey_path = Path(pkey_file)
+    config_path = Path(csr_config_file)
+    pkey_path = Path(server_pkey_file)
 
     if not config_path.exists():
-        raise FileNotFoundError(f"配置文件不存在: {config_file}")
+        raise FileNotFoundError(f"配置文件不存在: {csr_config_file}")
 
     if not pkey_path.exists():
-        raise FileNotFoundError(f"私钥文件不存在: {pkey_file}")
+        raise FileNotFoundError(f"私钥文件不存在: {server_pkey_file}")
 
     try:
         # 使用配置文件和已有私钥生成CSR
@@ -29,11 +28,11 @@ def new_csr(config_file: str, pkey_file: str, csr_file: str):
             "req",
             "-new",
             "-key",
-            pkey_file,
+            server_pkey_file,
             "-out",
             csr_file,
             "-config",
-            config_file,
+            csr_config_file,
         ]
         subprocess.run(csr_cmd, check=True, capture_output=True)
         print(f"CSR已保存到: {csr_file}")

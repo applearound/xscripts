@@ -42,10 +42,7 @@ def new_ca_signed_cert(
 
     # 如果提供了配置文件，添加扩展
     if config_file:
-        cmd.extend(["-extensions", "v3_req", "-extfile", config_file])
-
-    # 添加 copy_extensions 以复制CSR中的扩展，同时自动添加 authorityKeyIdentifier
-    cmd.extend(["-copy_extensions", "copy"])
+        cmd.extend(["-extfile", config_file])
 
     try:
         subprocess.run(cmd, check=True, capture_output=True)

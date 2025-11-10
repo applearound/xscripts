@@ -5,6 +5,16 @@ from .cert import new_ca_signed_cert
 from .csr import new_csr
 from .pkey import new_private_key
 
+"""
+openssl genrsa -out ca-key.pem 4096
+openssl req -new -x509 -days 3650 -key ca-key.pem -out ca-cert.pem -config ca.conf
+
+openssl genrsa -out server-key.pem 2048
+openssl req -new -key server-key.pem -out server.csr -config csr.conf
+
+openssl x509 -req -in server.csr -CA ca-cert.pem -CAkey ca-key.pem -CAcreateserial -out server-cert.pem -days 365 -extfile server.conf -extensions server_cert
+"""
+
 
 def _init_pkey_parser(pkey_parser: argparse.ArgumentParser) -> None:
     pkey_parser.add_argument(

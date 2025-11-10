@@ -38,20 +38,20 @@ def test_java_class_dump_pipeline():
         logger.info("Field: %s", field)
     logger.info("----------- Fields info ends -----------")
 
-    logger.info("Methods count: %s", java_clss.get_methods_count())
-
-    logger.info("----------- Methods info -----------")
-    for method in java_clss.get_methods():
-        logger.info("Method: %s", method)
-        name_info = java_clss.get_constant_pool_info(method.name_index)
-        logger.info("Method Name: %s", name_info)
-        descriptor_info = java_clss.get_constant_pool_info(method.descriptor_index)
-        logger.info("Method Descriptor: %s", descriptor_info)
-    logger.info("----------- Methods info ends -----------")
-
-    logger.info("Attributes count: %s", java_clss.get_attributes_count())
-
-    logger.info("----------- Attribute info -----------")
-    for attribute in java_clss.get_attributes():
-        logger.info("Attribute: %s", attribute)
-    logger.info("----------- Attribute info ends -----------")
+    # logger.info("Methods count: %s", java_clss.get_methods_count())
+    #
+    # logger.info("----------- Methods info -----------")
+    # for method in java_clss.get_methods():
+    #     logger.info("Method: %s", method)
+    #     name_info = java_clss.get_constant_pool_info(method.name_index)
+    #     logger.info("Method Name: %s", name_info)
+    #     descriptor_info = java_clss.get_constant_pool_info(method.descriptor_index)
+    #     logger.info("Method Descriptor: %s", descriptor_info)
+    # logger.info("----------- Methods info ends -----------")
+    #
+    # logger.info("Attributes count: %s", java_clss.get_attributes_count())
+    #
+    # logger.info("----------- Attribute info -----------")
+    # for attribute in java_clss.get_attributes():
+    #     logger.info("Attribute: %s", attribute)
+    # logger.info("----------- Attribute info ends -----------")

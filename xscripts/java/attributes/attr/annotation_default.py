@@ -19,7 +19,7 @@ class AnnotationDefaultAttributeInfo(AnnotationBase):
         super().__init__(raw_bytes)
 
     @cached_property
-    def default_value(self) -> 'AnnotationBase.ElementValue':
+    def default_value(self) -> "AnnotationBase.ElementValue":
         """ Parses the default value of the annotation.
 
         Returns:
